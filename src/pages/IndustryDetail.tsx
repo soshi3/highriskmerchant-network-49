@@ -5,6 +5,7 @@ import { ContactForm } from "@/components/ContactForm";
 import { Navbar } from "@/components/Navbar";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useEffect } from "react";
 
 // Define industry-specific SEO content
 const industrySeoContent: { [key: string]: string } = {
@@ -23,6 +24,12 @@ const industrySeoContent: { [key: string]: string } = {
 
 const IndustryDetail = () => {
   const { industryName } = useParams();
+  
+  // Add useEffect to scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [industryName]); // Re-run when industryName changes
+  
   const industry = industries.find(
     (ind) => ind.name.toLowerCase().replace(/\s+/g, '-') === industryName
   );
