@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 export const ContactForm = () => {
   const { toast } = useToast();
@@ -94,6 +94,7 @@ export const ContactForm = () => {
         value={formData.name}
         onChange={handleChange}
         required 
+        aria-label="Name"
       />
       <Input 
         type="tel" 
@@ -101,6 +102,7 @@ export const ContactForm = () => {
         name="phone"
         value={formData.phone}
         onChange={handleChange}
+        aria-label="Phone Number"
       />
       <Input 
         type="email" 
@@ -109,19 +111,22 @@ export const ContactForm = () => {
         value={formData.email}
         onChange={handleChange}
         required 
+        aria-label="Email"
       />
       <Input 
         placeholder="Website URL" 
         name="website"
         value={formData.website}
         onChange={handleChange}
+        aria-label="Website URL"
       />
       <Textarea 
         placeholder="Comment" 
         name="comment"
         value={formData.comment}
         onChange={handleChange}
-        className="min-h-[100px]" 
+        className="min-h-[100px]"
+        aria-label="Comment" 
       />
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting ? "Sending..." : "Submit"}
