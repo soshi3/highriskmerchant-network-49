@@ -1,9 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders } from "../_shared/cors.ts";
 
-const MAILJET_API_KEY = Deno.env.get("MAILJET_API_KEY");
-const MAILJET_SECRET_KEY = Deno.env.get("MAILJET_SECRET_KEY");
-const TO_EMAIL = Deno.env.get("TO_EMAIL");
+const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -13,12 +11,8 @@ serve(async (req) => {
 
   try {
     // Validate environment variables
-    if (!MAILJET_API_KEY || !MAILJET_SECRET_KEY || !TO_EMAIL) {
-      console.error("Missing required environment variables:", {
-        MAILJET_API_KEY: !!MAILJET_API_KEY,
-        MAILJET_SECRET_KEY: !!MAILJET_SECRET_KEY,
-        TO_EMAIL: !!TO_EMAIL
-      });
+    if (!RESEND_API_KEY) {
+      console.error("Missing RESEND_API_KEY environment variable");
       throw new Error("Server configuration error: Missing email service credentials");
     }
 
@@ -32,57 +26,38 @@ serve(async (req) => {
       throw new Error("Missing required fields");
     }
 
-    // Prepare email data for Mailjet
-    const data = {
-      Messages: [
-        {
-          From: {
-            Email: TO_EMAIL,
-            Name: "High Risk Merchant Network",
-          },
-          To: [
-            {
-              Email: TO_EMAIL,
-              Name: "Admin",
-            },
-          ],
-          Subject: `New Contact Form Submission - ${industry || 'General Inquiry'}`,
-          HTMLPart: `
-            <h3>New Contact Form Submission</h3>
-            <p><strong>Name:</strong> ${name}</p>
-            <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
-            <p><strong>Industry:</strong> ${industry || 'Not specified'}</p>
-            <p><strong>Message:</strong> ${message}</p>
-          `,
-          TextPart: `
-            Name: ${name}
-            Email: ${email}
-            Phone: ${phone || 'Not provided'}
-            Industry: ${industry || 'Not specified'}
-            Message: ${message}
-          `,
-        },
-      ],
+    // Prepare email data
+    const emailData = {
+      from: "AML Limited <info@amlltd.com>",
+      to: ["info@amlltd.com"],
+      subject: `New Contact Form Submission - ${industry || 'General Inquiry'}`,
+      html: `
+        <h3>New Contact Form Submission</h3>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
+        <p><strong>Industry:</strong> ${industry || 'Not specified'}</p>
+        <p><strong>Message:</strong> ${message}</p>
+      `,
     };
 
-    console.log("Sending email with Mailjet data:", JSON.stringify(data, null, 2));
+    console.log("Sending email with Resend data:", JSON.stringify(emailData, null, 2));
 
-    // Send email using Mailjet API
-    const response = await fetch("https://api.mailjet.com/v3.1/send", {
+    // Send email using Resend API
+    const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Basic ${btoa(`${MAILJET_API_KEY}:${MAILJET_SECRET_KEY}`)}`,
+        Authorization: `Bearer ${RESEND_API_KEY}`,
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(emailData),
     });
 
     const result = await response.json();
-    console.log("Mailjet API response:", JSON.stringify(result, null, 2));
+    console.log("Resend API response:", JSON.stringify(result, null, 2));
 
     if (!response.ok) {
-      console.error("Mailjet API error details:", {
+      console.error("Resend API error details:", {
         status: response.status,
         statusText: response.statusText,
         result: result
