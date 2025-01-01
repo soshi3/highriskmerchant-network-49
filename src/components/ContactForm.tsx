@@ -35,9 +35,13 @@ export const ContactForm = () => {
     
     let isValid = true;
 
-    // Validate name
+    // Validate name (minimum 2 characters, no numbers)
+    const nameRegex = /^[A-Za-z\s]{2,}$/;
     if (!formData.name.trim()) {
       nameInput.setCustomValidity("Please enter your name");
+      isValid = false;
+    } else if (!nameRegex.test(formData.name.trim())) {
+      nameInput.setCustomValidity("Please enter a valid name (at least 2 letters, no numbers)");
       isValid = false;
     } else {
       nameInput.setCustomValidity("");
@@ -57,7 +61,7 @@ export const ContactForm = () => {
 
     // Show validation messages
     if (!isValid) {
-      if (!formData.name.trim()) {
+      if (!formData.name.trim() || !nameRegex.test(formData.name.trim())) {
         nameInput.reportValidity();
       }
       if (!formData.email.trim() || !emailRegex.test(formData.email.trim())) {
