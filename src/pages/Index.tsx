@@ -9,20 +9,10 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       <div className="relative">
-        {/* Enhanced abstract background with multiple layers */}
+        {/* Stripe-like gradient background */}
         <div className="absolute inset-0 overflow-hidden -z-10">
-          {/* Base gradient */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-secondary to-white"></div>
-          
-          {/* Abstract patterns */}
           <div className="absolute top-0 left-0 right-0 h-[500px] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(110,89,165,0.3),rgba(255,255,255,0))]"></div>
-          <div className="absolute top-[10%] left-[20%] w-[300px] h-[300px] bg-[radial-gradient(circle_at_center,#FEC6A1_0%,transparent_70%)] blur-xl opacity-20"></div>
-          <div className="absolute top-[5%] right-[10%] w-[250px] h-[250px] bg-[radial-gradient(circle_at_center,#E5DEFF_0%,transparent_70%)] blur-xl opacity-30"></div>
-          <div className="absolute top-[30%] left-[40%] w-[200px] h-[200px] bg-[radial-gradient(circle_at_center,#D3E4FD_0%,transparent_70%)] blur-xl opacity-25"></div>
-          
-          {/* Animated blobs */}
-          <div className="absolute top-[15%] right-[30%] w-[150px] h-[150px] rounded-full bg-gradient-to-r from-[#8B5CF6]/10 to-[#D946EF]/10 animate-pulse"></div>
-          <div className="absolute top-[40%] left-[15%] w-[100px] h-[100px] rounded-full bg-gradient-to-r from-[#F97316]/10 to-[#0EA5E9]/10 animate-pulse delay-700"></div>
         </div>
         
         <Navbar />
@@ -61,9 +51,8 @@ const Index = () => {
             </div>
           </div>
         </section>
-      </div>
 
-      {/* Features Section */}
+        {/* Features Section */}
       <section className="py-20 px-4 bg-white">
         <div className="container mx-auto">
           <div className="max-w-2xl mx-auto text-center mb-12">
@@ -81,7 +70,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Industries Section */}
+        {/* Industries Section */}
       <section className="py-20 px-4 bg-secondary" id="industries">
         <div className="container mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">
@@ -91,7 +80,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
+        {/* Stats Section */}
       <section className="py-20 px-4 bg-white">
         <div className="container mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">About Us</h2>
@@ -99,7 +88,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Footer */}
+        {/* Footer */}
       <footer className="bg-secondary py-20 px-4">
         <div className="container mx-auto">
           <div className="max-w-2xl mx-auto text-center mb-12">
@@ -114,6 +103,7 @@ const Index = () => {
           </div>
         </div>
       </footer>
+      </div>
     </div>
   );
 };
