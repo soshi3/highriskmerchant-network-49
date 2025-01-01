@@ -20,10 +20,10 @@ const Index = () => {
       gradient: "rgba(74,144,184,0.3)",
       secondary: "#F0F7FA",
     },
-    dark: {
-      primary: "#2A2A2A",
-      gradient: "rgba(42,42,42,0.3)",
-      secondary: "#F2F2F2",
+    gold: {
+      primary: "#B8860B",
+      gradient: "rgba(184,134,11,0.3)",
+      secondary: "#FAF6F0",
     },
   };
 
