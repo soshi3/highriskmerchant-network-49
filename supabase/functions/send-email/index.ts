@@ -20,15 +20,21 @@ serve(async (req) => {
     const MAILJET_SECRET_KEY = Deno.env.get('MAILJET_SECRET_KEY')
     const TO_EMAIL = Deno.env.get('TO_EMAIL')
 
+    // Validate environment variables
     if (!MAILJET_API_KEY || !MAILJET_SECRET_KEY || !TO_EMAIL) {
-      console.error('Missing required environment variables')
-      throw new Error('Server configuration error')
+      console.error('Missing required environment variables:', {
+        hasMailjetApiKey: !!MAILJET_API_KEY,
+        hasMailjetSecretKey: !!MAILJET_SECRET_KEY,
+        hasToEmail: !!TO_EMAIL
+      })
+      throw new Error('Server configuration error: Missing required environment variables')
     }
 
-    const { name, email, message, phone, industry } = await req.json()
+    const { name, email, phone, message, industry } = await req.json()
 
+    // Validate required fields
     if (!name || !email || !message) {
-      console.error('Missing required fields')
+      console.error('Missing required fields:', { name, email, message })
       throw new Error('Missing required fields')
     }
 
