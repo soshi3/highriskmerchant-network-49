@@ -12,22 +12,31 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Configure Nodemailer transporter
+// Configure Nodemailer transporter with more secure settings
 const transporter = nodemailer.createTransport({
   service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_APP_PASSWORD
   },
   tls: {
     rejectUnauthorized: false
-  }
+  },
+  debug: true, // Enable debug logs
+  logger: true  // Enable logger
 });
 
-// Verify transporter configuration
+// Verify transporter configuration on startup
 transporter.verify(function(error, success) {
   if (error) {
     console.error('Transporter verification failed:', error);
+    console.error('Email configuration:', {
+      user: process.env.EMAIL_USER,
+      passLength: process.env.EMAIL_APP_PASSWORD ? process.env.EMAIL_APP_PASSWORD.length : 0
+    });
   } else {
     console.log('Server is ready to take our messages');
   }
@@ -37,7 +46,10 @@ app.post('/api/send-email', async (req, res) => {
   try {
     const { name, email, phone, website, comment } = req.body;
     
+    console.log('Request body:', req.body);
+
     if (!name || !email) {
+      console.log('Validation failed: Missing name or email');
       return res.status(400).json({ error: 'Name and email are required' });
     }
 
@@ -68,13 +80,27 @@ app.post('/api/send-email', async (req, res) => {
     
     const info = await transporter.sendMail(mailOptions);
     console.log('Email sent successfully:', info);
+    console.log('Message ID:', info.messageId);
+    console.log('Preview URL:', nodemailer.getTestMessageUrl(info));
 
-    res.status(200).json({ message: 'Email sent successfully', info });
+    res.status(200).json({ 
+      message: 'Email sent successfully', 
+      info: {
+        messageId: info.messageId,
+        preview: nodemailer.getTestMessageUrl(info)
+      } 
+    });
   } catch (error) {
     console.error('Detailed error sending email:', error);
+    console.error('Stack trace:', error.stack);
+    console.error('Error code:', error.code);
+    console.error('Error command:', error.command);
+    
     res.status(500).json({ 
       error: 'Failed to send email',
       details: error.message,
+      code: error.code,
+      command: error.command,
       stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
