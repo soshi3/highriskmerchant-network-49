@@ -7,13 +7,16 @@ dotenv.config();
 
 const app = express();
 
+// Enhanced CORS configuration
 app.use(cors({
-  origin: true,
+  origin: '*',
+  methods: ['POST'],
+  allowedHeaders: ['Content-Type'],
   credentials: true
 }));
 app.use(express.json());
 
-// Configure Nodemailer transporter
+// Configure Nodemailer transporter with more detailed settings
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   host: 'smtp.gmail.com',
@@ -23,12 +26,14 @@ const transporter = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_APP_PASSWORD
   },
+  debug: true, // Enable debug logs
+  logger: true, // Enable logger
   tls: {
     rejectUnauthorized: false
   }
 });
 
-// Verify transporter configuration
+// Enhanced transporter verification with detailed logging
 transporter.verify((error, success) => {
   if (error) {
     console.error('SMTP Configuration Error:', error);
@@ -45,16 +50,24 @@ app.post('/api/send-email', async (req, res) => {
   console.log('Received email request:', req.body);
   
   try {
+    // Input validation
     const { name, email, phone, website, comment } = req.body;
 
     if (!name || !email) {
       console.log('Validation failed: Missing required fields');
-      return res.status(400).json({ error: 'Name and email are required' });
+      return res.status(400).json({ 
+        error: 'Name and email are required',
+        details: { name: !name, email: !email }
+      });
     }
 
+    // Email configuration
     const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: 'amllimitedhk@gmail.com',
+      from: {
+        name: 'Contact Form',
+        address: process.env.EMAIL_USER
+      },
+      to: process.env.EMAIL_USER,
       subject: 'New Contact Form Submission',
       html: `
         <h2>New Contact Form Submission</h2>
@@ -81,9 +94,12 @@ app.post('/api/send-email', async (req, res) => {
     });
   } catch (error) {
     console.error('Email sending failed:', error);
+    // Enhanced error response
     res.status(500).json({
       error: 'Failed to send email',
-      details: error.message
+      details: error.message,
+      code: error.code,
+      command: error.command
     });
   }
 });
