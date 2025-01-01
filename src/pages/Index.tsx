@@ -126,7 +126,7 @@ const Index = () => {
               <p className="text-gray-600 mb-8">
                 Low or high, your risk level won't stop you from getting a fast and easy approval. We accept and provide for a number of industries.
               </p>
-              <div className="w-full flex justify-center">
+              <div className="w-full max-w-3xl mx-auto">
                 <ContactForm />
               </div>
             </div>
