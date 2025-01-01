@@ -44,10 +44,11 @@ export const ContactForm = () => {
     }
 
     // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email.trim()) {
       emailInput.setCustomValidity("Please enter your email address");
       isValid = false;
-    } else if (!emailInput.validity.valid) {
+    } else if (!emailRegex.test(formData.email.trim())) {
       emailInput.setCustomValidity("Please enter a valid email address");
       isValid = false;
     } else {
@@ -59,7 +60,7 @@ export const ContactForm = () => {
       if (!formData.name.trim()) {
         nameInput.reportValidity();
       }
-      if (!formData.email.trim() || !emailInput.validity.valid) {
+      if (!formData.email.trim() || !emailRegex.test(formData.email.trim())) {
         emailInput.reportValidity();
       }
       return;
