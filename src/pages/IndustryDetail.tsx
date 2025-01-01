@@ -3,8 +3,10 @@ import { industries } from "@/components/Industries";
 import { Button } from "@/components/ui/button";
 import { ContactForm } from "@/components/ContactForm";
 import { Navbar } from "@/components/Navbar";
-import { ArrowLeft, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Download } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import JSZip from "jszip";
+import { toast } from "sonner";
 
 // Define industry-specific SEO content
 const industrySeoContent: { [key: string]: string } = {
@@ -26,6 +28,52 @@ const IndustryDetail = () => {
   const industry = industries.find(
     (ind) => ind.name.toLowerCase().replace(/\s+/g, '-') === industryName
   );
+
+  const handleDownload = async () => {
+    try {
+      const zip = new JSZip();
+      
+      // Create content for the text file
+      const content = `${industry?.name} Industry Payment Solutions\n\n` +
+        `Description: ${industry?.description}\n\n` +
+        `Detailed Information:\n${seoContent}\n\n` +
+        `Benefits:\n` +
+        `- Specialized high-risk merchant accounts tailored for ${industry?.name.toLowerCase()} businesses\n` +
+        `- Competitive rates and flexible payment terms\n` +
+        `- Advanced fraud protection and risk management\n` +
+        `- 24/7 customer support and dedicated account manager\n` +
+        `- Fast approval process and quick account setup\n` +
+        `- Multiple currency support and global payment processing\n\n` +
+        `Solutions Include:\n` +
+        `- Secure payment gateway integration\n` +
+        `- Chargeback prevention and management\n` +
+        `- Multi-currency processing capabilities\n` +
+        `- Recurring billing and subscription management\n` +
+        `- PCI DSS compliance support\n` +
+        `- Real-time transaction monitoring`;
+
+      // Add the content to the ZIP file
+      zip.file(`${industry?.name.toLowerCase().replace(/\s+/g, '-')}-payment-solutions.txt`, content);
+
+      // Generate the ZIP file
+      const blob = await zip.generateAsync({ type: "blob" });
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${industry?.name.toLowerCase().replace(/\s+/g, '-')}-payment-solutions.zip`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast.success("Content downloaded successfully");
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.error("Failed to download content");
+    }
+  };
 
   if (!industry) {
     return (
@@ -61,10 +109,20 @@ const IndustryDetail = () => {
         <Navbar />
         
         <div className="container mx-auto px-4 pt-32 pb-20">
-          <Link to="/" className="inline-flex items-center text-primary hover:text-primary/80 mb-8 transition-colors">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Industries
-          </Link>
+          <div className="flex justify-between items-center mb-8">
+            <Link to="/" className="inline-flex items-center text-primary hover:text-primary/80 transition-colors">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Industries
+            </Link>
+            <Button
+              onClick={handleDownload}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Download Information
+            </Button>
+          </div>
           
           <div className="grid lg:grid-cols-2 gap-12 items-start">
             <div className="space-y-8 animate-fade-in">
