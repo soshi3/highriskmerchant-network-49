@@ -12,7 +12,7 @@ export default async function handler(req: Request) {
     const { name, email, phone, company, industry, comment } = await req.json();
 
     const msg = {
-      to: 'amllimitedhk@gmail.com',
+      to: 'info@amlltd.com',
       from: import.meta.env.VITE_SENDGRID_FROM_EMAIL,
       subject: 'New Contact Form Submission',
       text: `
