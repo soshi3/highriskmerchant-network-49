@@ -1,40 +1,32 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { corsHeaders } from "../_shared/cors.ts";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+const MAILJET_API_KEY = Deno.env.get("MAILJET_API_KEY");
+const MAILJET_SECRET_KEY = Deno.env.get("MAILJET_SECRET_KEY");
+const TO_EMAIL = Deno.env.get("TO_EMAIL");
 
 serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+  // Handle CORS
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    // Get environment variables
-    const MAILJET_API_KEY = Deno.env.get('MAILJET_API_KEY');
-    const MAILJET_SECRET_KEY = Deno.env.get('MAILJET_SECRET_KEY');
-    const TO_EMAIL = Deno.env.get('TO_EMAIL');
-
-    // Validate environment variables
+    // Check if environment variables are set
     if (!MAILJET_API_KEY || !MAILJET_SECRET_KEY || !TO_EMAIL) {
-      console.error('Missing required environment variables:', {
-        hasMailjetApiKey: !!MAILJET_API_KEY,
-        hasMailjetSecretKey: !!MAILJET_SECRET_KEY,
-        hasToEmail: !!TO_EMAIL
-      });
-      throw new Error('Server configuration error: Missing required environment variables');
+      console.error("Missing required environment variables");
+      throw new Error("Server configuration error: Missing email service credentials");
     }
 
-    // Parse request body
-    const { name, email, phone, message, industry } = await req.json();
+    // Parse the request body
+    const { name, email, phone, message, industry, userId } = await req.json();
 
     // Validate required fields
     if (!name || !email || !message) {
-      console.error('Missing required fields:', { name, email, message });
-      throw new Error('Missing required fields');
+      throw new Error("Missing required fields");
     }
+
+    console.log("Preparing to send email with data:", { name, email, phone, message, industry });
 
     // Prepare email data
     const data = {
@@ -42,62 +34,75 @@ serve(async (req) => {
         {
           From: {
             Email: TO_EMAIL,
-            Name: "Contact Form"
+            Name: "High Risk Merchant Network",
           },
           To: [
             {
               Email: TO_EMAIL,
-              Name: "Admin"
-            }
+              Name: "Admin",
+            },
           ],
           Subject: `New Contact Form Submission - ${industry || 'General Inquiry'}`,
+          TextPart: `
+            Name: ${name}
+            Email: ${email}
+            Phone: ${phone || 'Not provided'}
+            Industry: ${industry || 'Not specified'}
+            Message: ${message}
+            User ID: ${userId || 'Not logged in'}
+          `,
           HTMLPart: `
             <h3>New Contact Form Submission</h3>
             <p><strong>Name:</strong> ${name}</p>
             <p><strong>Email:</strong> ${email}</p>
-            ${phone ? `<p><strong>Phone:</strong> ${phone}</p>` : ''}
-            ${industry ? `<p><strong>Industry:</strong> ${industry}</p>` : ''}
-            <p><strong>Message:</strong></p>
-            <p>${message}</p>
-          `
-        }
-      ]
+            <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
+            <p><strong>Industry:</strong> ${industry || 'Not specified'}</p>
+            <p><strong>Message:</strong> ${message}</p>
+            <p><strong>User ID:</strong> ${userId || 'Not logged in'}</p>
+          `,
+        },
+      ],
     };
 
-    // Send email using Mailjet
-    console.log('Sending email with data:', JSON.stringify(data, null, 2));
-    
-    const response = await fetch('https://api.mailjet.com/v3.1/send', {
-      method: 'POST',
+    console.log("Sending email with Mailjet...");
+
+    // Send email using Mailjet API
+    const response = await fetch("https://api.mailjet.com/v3.1/send", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Basic ${btoa(`${MAILJET_API_KEY}:${MAILJET_SECRET_KEY}`)}`
+        "Content-Type": "application/json",
+        Authorization: `Basic ${btoa(
+          `${MAILJET_API_KEY}:${MAILJET_SECRET_KEY}`
+        )}`,
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     });
 
     const result = await response.json();
-    console.log('Mailjet API response:', JSON.stringify(result, null, 2));
+    console.log("Mailjet API response:", result);
 
     if (!response.ok) {
       throw new Error(`Failed to send email: ${JSON.stringify(result)}`);
     }
 
-    return new Response(JSON.stringify(result), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 200
-    });
-
+    return new Response(
+      JSON.stringify({ success: true, message: "Email sent successfully" }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      }
+    );
   } catch (error) {
-    console.error('Error in send-email function:', error);
+    console.error("Error in send-email function:", error);
     
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: error.message,
-        details: error.toString()
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500
+        details: error.stack,
+      }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
       }
     );
   }
