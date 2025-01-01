@@ -41,27 +41,24 @@ export const ContactForm = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      console.log("Submitting form with values:", values);
+      
       const { data: { user } } = await supabase.auth.getUser();
       
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-email`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          },
-          body: JSON.stringify({
-            ...values,
-            industry: industryName,
-            userId: user?.id,
-          }),
-        }
-      );
+      const { data, error } = await supabase.functions.invoke('send-email', {
+        body: JSON.stringify({
+          ...values,
+          industry: industryName,
+          userId: user?.id,
+        }),
+      });
 
-      if (!response.ok) {
-        throw new Error("Failed to send message");
+      if (error) {
+        console.error("Error from edge function:", error);
+        throw new Error(error.message || "Failed to send message");
       }
+
+      console.log("Success response:", data);
 
       toast({
         title: "Success!",
