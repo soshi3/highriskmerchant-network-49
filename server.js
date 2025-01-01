@@ -6,7 +6,10 @@ import cors from 'cors';
 dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
 app.use(express.json());
 
 // Configure Nodemailer transporter
@@ -15,6 +18,9 @@ const transporter = nodemailer.createTransport({
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_APP_PASSWORD
+  },
+  tls: {
+    rejectUnauthorized: false
   }
 });
 
@@ -31,10 +37,14 @@ app.post('/api/send-email', async (req, res) => {
   try {
     const { name, email, phone, website, comment } = req.body;
     
+    if (!name || !email) {
+      return res.status(400).json({ error: 'Name and email are required' });
+    }
+
     console.log('Received email request:', { name, email, phone, website });
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: `"Contact Form" <${process.env.EMAIL_USER}>`,
       to: 'amllimitedhk@gmail.com',
       subject: 'New Contact Form Submission',
       text: `
@@ -56,15 +66,16 @@ app.post('/api/send-email', async (req, res) => {
 
     console.log('Attempting to send email with options:', mailOptions);
     
-    await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully');
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent successfully:', info);
 
-    res.status(200).json({ message: 'Email sent successfully' });
+    res.status(200).json({ message: 'Email sent successfully', info });
   } catch (error) {
     console.error('Detailed error sending email:', error);
     res.status(500).json({ 
       error: 'Failed to send email',
-      details: error.message 
+      details: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 });
