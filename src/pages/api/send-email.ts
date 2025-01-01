@@ -7,12 +7,20 @@ export default async function handler(req: any, res: any) {
 
   const { to, subject, name, email, phone, website, comment } = req.body;
 
-  // Configure SendGrid
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY as string);
+  // Configure SendGrid with API key from environment
+  const apiKey = process.env.SENDGRID_API_KEY;
+  const fromEmail = process.env.SENDGRID_FROM_EMAIL;
+
+  if (!apiKey || !fromEmail) {
+    console.error('SendGrid configuration missing');
+    return res.status(500).json({ message: 'Email service not configured' });
+  }
+
+  sgMail.setApiKey(apiKey);
 
   const msg = {
     to,
-    from: process.env.SENDGRID_FROM_EMAIL as string, // Verified sender email
+    from: fromEmail,
     subject,
     text: `
       New contact form submission:
@@ -36,8 +44,12 @@ export default async function handler(req: any, res: any) {
   try {
     await sgMail.send(msg);
     res.status(200).json({ message: 'Email sent successfully' });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error sending email:', error);
-    res.status(500).json({ message: 'Failed to send email' });
+    // Log more detailed error information
+    if (error.response) {
+      console.error(error.response.body);
+    }
+    res.status(500).json({ message: 'Failed to send email', error: error.message });
   }
 }
