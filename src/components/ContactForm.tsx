@@ -87,7 +87,11 @@ export const ContactForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-md">
+    <form 
+      onSubmit={handleSubmit} 
+      className="space-y-4 w-full max-w-md"
+      noValidate
+    >
       <Input 
         placeholder="Name*" 
         name="name"
@@ -95,6 +99,13 @@ export const ContactForm = () => {
         onChange={handleChange}
         required 
         aria-label="Name"
+        onInvalid={(e: React.InvalidEvent<HTMLInputElement>) => {
+          e.preventDefault();
+          e.target.setCustomValidity("This field is required");
+        }}
+        onInput={(e: React.FormEvent<HTMLInputElement>) => {
+          e.currentTarget.setCustomValidity("");
+        }}
       />
       <Input 
         type="tel" 
@@ -112,6 +123,17 @@ export const ContactForm = () => {
         onChange={handleChange}
         required 
         aria-label="Email"
+        onInvalid={(e: React.InvalidEvent<HTMLInputElement>) => {
+          e.preventDefault();
+          if (e.target.validity.valueMissing) {
+            e.target.setCustomValidity("This field is required");
+          } else if (e.target.validity.typeMismatch) {
+            e.target.setCustomValidity("Please enter a valid email address");
+          }
+        }}
+        onInput={(e: React.FormEvent<HTMLInputElement>) => {
+          e.currentTarget.setCustomValidity("");
+        }}
       />
       <Input 
         placeholder="Website URL" 
