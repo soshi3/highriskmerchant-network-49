@@ -6,6 +6,8 @@ import cors from 'cors';
 dotenv.config();
 
 const app = express();
+
+// Configure CORS to accept all origins in development
 app.use(cors({
   origin: true,
   credentials: true
