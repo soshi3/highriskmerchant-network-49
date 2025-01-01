@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://cdn.jsdelivr.net/npm/node-mailjet@6.0.2/+esm'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -29,49 +28,55 @@ serve(async (req) => {
 
     console.log('Sending email with data:', { name, email, phone, industry })
 
-    const mailjet = createClient({
-      apiKey: MAILJET_API_KEY,
-      apiSecret: MAILJET_SECRET_KEY
+    const response = await fetch('https://api.mailjet.com/v3.1/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Basic ${btoa(`${MAILJET_API_KEY}:${MAILJET_SECRET_KEY}`)}`
+      },
+      body: JSON.stringify({
+        Messages: [
+          {
+            From: {
+              Email: TO_EMAIL,
+              Name: "High Risk Merchant"
+            },
+            To: [
+              {
+                Email: TO_EMAIL,
+                Name: "Admin"
+              }
+            ],
+            Subject: `New Contact Form Submission from ${name}`,
+            TextPart: `
+              Name: ${name}
+              Email: ${email}
+              Phone: ${phone || 'Not provided'}
+              Industry: ${industry || 'Not provided'}
+              Message: ${message}
+            `,
+            HTMLPart: `
+              <h3>New Contact Form Submission</h3>
+              <p><strong>Name:</strong> ${name}</p>
+              <p><strong>Email:</strong> ${email}</p>
+              <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
+              <p><strong>Industry:</strong> ${industry || 'Not provided'}</p>
+              <p><strong>Message:</strong> ${message}</p>
+            `
+          }
+        ]
+      })
     })
 
-    const data = {
-      Messages: [
-        {
-          From: {
-            Email: TO_EMAIL,
-            Name: "High Risk Merchant"
-          },
-          To: [
-            {
-              Email: TO_EMAIL,
-              Name: "Admin"
-            }
-          ],
-          Subject: `New Contact Form Submission from ${name}`,
-          TextPart: `
-            Name: ${name}
-            Email: ${email}
-            Phone: ${phone || 'Not provided'}
-            Industry: ${industry || 'Not provided'}
-            Message: ${message}
-          `,
-          HTMLPart: `
-            <h3>New Contact Form Submission</h3>
-            <p><strong>Name:</strong> ${name}</p>
-            <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
-            <p><strong>Industry:</strong> ${industry || 'Not provided'}</p>
-            <p><strong>Message:</strong> ${message}</p>
-          `
-        }
-      ]
+    console.log('Mailjet API response:', response.status)
+    
+    if (!response.ok) {
+      const error = await response.text()
+      console.error('Mailjet API error:', error)
+      throw new Error('Failed to send email')
     }
 
-    console.log('Sending email with Mailjet...')
-    const result = await mailjet
-      .post("send", { version: 'v3.1' })
-      .request(data)
-    
+    const result = await response.json()
     console.log('Email sent successfully:', result)
 
     return new Response(
