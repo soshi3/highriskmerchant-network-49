@@ -27,6 +27,23 @@ export const ContactForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Form validation
+    const form = e.target as HTMLFormElement;
+    if (!form.checkValidity()) {
+      e.stopPropagation();
+      // Show validation messages by triggering invalid event on all form elements
+      Array.from(form.elements).forEach((element) => {
+        if (element instanceof HTMLInputElement) {
+          if (!element.validity.valid) {
+            const invalidEvent = new Event('invalid', { cancelable: true });
+            element.dispatchEvent(invalidEvent);
+          }
+        }
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
@@ -101,7 +118,7 @@ export const ContactForm = () => {
         aria-label="Name"
         onInvalid={(e: React.InvalidEvent<HTMLInputElement>) => {
           e.preventDefault();
-          e.target.setCustomValidity("This field is required");
+          e.target.setCustomValidity("Please enter your name");
         }}
         onInput={(e: React.FormEvent<HTMLInputElement>) => {
           e.currentTarget.setCustomValidity("");
@@ -126,7 +143,7 @@ export const ContactForm = () => {
         onInvalid={(e: React.InvalidEvent<HTMLInputElement>) => {
           e.preventDefault();
           if (e.target.validity.valueMissing) {
-            e.target.setCustomValidity("This field is required");
+            e.target.setCustomValidity("Please enter your email address");
           } else if (e.target.validity.typeMismatch) {
             e.target.setCustomValidity("Please enter a valid email address");
           }
