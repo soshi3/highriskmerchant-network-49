@@ -11,16 +11,27 @@ app.use(express.json());
 
 // Configure Nodemailer transporter
 const transporter = nodemailer.createTransport({
-  service: 'gmail',  // You can change this to other services like 'outlook', 'yahoo', etc.
+  service: 'gmail',
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_APP_PASSWORD // Use App Password for Gmail
+    pass: process.env.EMAIL_APP_PASSWORD
+  }
+});
+
+// Verify transporter configuration
+transporter.verify(function(error, success) {
+  if (error) {
+    console.error('Transporter verification failed:', error);
+  } else {
+    console.log('Server is ready to take our messages');
   }
 });
 
 app.post('/api/send-email', async (req, res) => {
   try {
     const { name, email, phone, website, comment } = req.body;
+    
+    console.log('Received email request:', { name, email, phone, website });
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -43,18 +54,26 @@ app.post('/api/send-email', async (req, res) => {
       `,
     };
 
-    console.log('Attempting to send email...');
+    console.log('Attempting to send email with options:', mailOptions);
+    
     await transporter.sendMail(mailOptions);
     console.log('Email sent successfully');
 
     res.status(200).json({ message: 'Email sent successfully' });
   } catch (error) {
-    console.error('Error sending email:', error);
-    res.status(500).json({ error: 'Failed to send email' });
+    console.error('Detailed error sending email:', error);
+    res.status(500).json({ 
+      error: 'Failed to send email',
+      details: error.message 
+    });
   }
 });
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  console.log('Email configuration:', {
+    user: process.env.EMAIL_USER,
+    passLength: process.env.EMAIL_APP_PASSWORD ? process.env.EMAIL_APP_PASSWORD.length : 0
+  });
 });
