@@ -32,7 +32,7 @@ export const ContactForm = () => {
     try {
       console.log('Submitting form data:', formData);
 
-      const response = await fetch('/api/send-email', {
+      const response = await fetch('http://localhost:3001/api/send-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -46,14 +46,6 @@ export const ContactForm = () => {
       if (!response.ok) {
         throw new Error(data.error || 'Failed to send email');
       }
-
-      // Save form data to localStorage
-      const submissions = JSON.parse(localStorage.getItem('contactSubmissions') || '[]');
-      submissions.push({
-        ...formData,
-        timestamp: new Date().toISOString(),
-      });
-      localStorage.setItem('contactSubmissions', JSON.stringify(submissions));
 
       toast({
         title: "Success!",
