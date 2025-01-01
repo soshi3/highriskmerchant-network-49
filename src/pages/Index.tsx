@@ -10,22 +10,39 @@ const Index = () => {
   const [primaryColor, setPrimaryColor] = useState("#6E59A5");
 
   const colors = {
-    purple: "#6E59A5",
-    blueTeal: "#4A90B8",
-    dark: "#2A2A2A",
+    purple: {
+      primary: "#6E59A5",
+      gradient: "rgba(110,89,165,0.3)",
+      secondary: "#F6F6F7",
+    },
+    blueTeal: {
+      primary: "#4A90B8",
+      gradient: "rgba(74,144,184,0.3)",
+      secondary: "#F0F7FA",
+    },
+    dark: {
+      primary: "#2A2A2A",
+      gradient: "rgba(42,42,42,0.3)",
+      secondary: "#F2F2F2",
+    },
   };
 
   useEffect(() => {
-    document.documentElement.style.setProperty("--primary-color", primaryColor);
-  }, [primaryColor]);
+    const selectedTheme = Object.values(colors).find(theme => theme.primary === primaryColor);
+    if (selectedTheme) {
+      document.documentElement.style.setProperty("--primary-color", selectedTheme.primary);
+      document.documentElement.style.setProperty("--gradient-color", selectedTheme.gradient);
+      document.documentElement.style.setProperty("--secondary-color", selectedTheme.secondary);
+    }
+  }, [primaryColor, colors]);
 
   return (
     <div className="min-h-screen">
       <div className="relative">
         {/* Stripe-like gradient background */}
         <div className="absolute inset-0 overflow-hidden -z-10">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-secondary to-white"></div>
-          <div className="absolute top-0 left-0 right-0 h-[500px] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(110,89,165,0.3),rgba(255,255,255,0))]"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-[var(--gradient-color)] via-[var(--secondary-color)] to-white"></div>
+          <div className="absolute top-0 left-0 right-0 h-[500px] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,var(--gradient-color),rgba(255,255,255,0))]"></div>
         </div>
         
         <Navbar />
@@ -102,7 +119,7 @@ const Index = () => {
       </section>
 
         {/* Footer */}
-        <footer className="bg-secondary py-20 px-4">
+        <footer className="bg-[var(--secondary-color)] py-20 px-4">
           <div className="container mx-auto">
             <div className="flex flex-col items-center max-w-2xl mx-auto text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">Let's Get Started?</h2>
@@ -115,12 +132,12 @@ const Index = () => {
             </div>
             <div className="flex flex-col items-center space-y-4">
               <div className="flex items-center space-x-4 mb-4">
-                {Object.entries(colors).map(([name, color]) => (
+                {Object.entries(colors).map(([name, theme]) => (
                   <button
                     key={name}
-                    onClick={() => setPrimaryColor(color)}
+                    onClick={() => setPrimaryColor(theme.primary)}
                     className={`w-8 h-8 rounded-full transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary`}
-                    style={{ backgroundColor: color }}
+                    style={{ backgroundColor: theme.primary }}
                     aria-label={`Switch to ${name} theme`}
                   />
                 ))}
