@@ -38,8 +38,8 @@ export const ContactForm = () => {
       });
       localStorage.setItem('contactSubmissions', JSON.stringify(submissions));
 
-      // Send email using the correct server URL
-      const response = await fetch('http://localhost:3001/api/send-email', {
+      // Send email using relative URL
+      const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
