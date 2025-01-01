@@ -14,7 +14,11 @@ serve(async (req) => {
   try {
     // Validate environment variables
     if (!MAILJET_API_KEY || !MAILJET_SECRET_KEY || !TO_EMAIL) {
-      console.error("Missing required environment variables");
+      console.error("Missing required environment variables:", {
+        MAILJET_API_KEY: !!MAILJET_API_KEY,
+        MAILJET_SECRET_KEY: !!MAILJET_SECRET_KEY,
+        TO_EMAIL: !!TO_EMAIL
+      });
       throw new Error("Server configuration error: Missing email service credentials");
     }
 
@@ -24,6 +28,7 @@ serve(async (req) => {
 
     // Validate required fields
     if (!name || !email || !message) {
+      console.error("Missing required fields:", { name: !!name, email: !!email, message: !!message });
       throw new Error("Missing required fields");
     }
 
@@ -61,7 +66,7 @@ serve(async (req) => {
       ],
     };
 
-    console.log("Sending email with Mailjet...");
+    console.log("Sending email with Mailjet data:", JSON.stringify(data, null, 2));
 
     // Send email using Mailjet API
     const response = await fetch("https://api.mailjet.com/v3.1/send", {
@@ -74,10 +79,14 @@ serve(async (req) => {
     });
 
     const result = await response.json();
-    console.log("Mailjet API response:", result);
+    console.log("Mailjet API response:", JSON.stringify(result, null, 2));
 
     if (!response.ok) {
-      console.error("Mailjet API error:", result);
+      console.error("Mailjet API error details:", {
+        status: response.status,
+        statusText: response.statusText,
+        result: result
+      });
       throw new Error(`Failed to send email: ${JSON.stringify(result)}`);
     }
 
