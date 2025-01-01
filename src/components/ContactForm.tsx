@@ -38,7 +38,24 @@ export const ContactForm = () => {
       });
       localStorage.setItem('contactSubmissions', JSON.stringify(submissions));
 
-      console.log('Form data saved:', formData);
+      // Send email using SendGrid
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: 'amllimitedhk@gmail.com',
+          subject: 'New Contact Form Submission',
+          ...formData,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send email');
+      }
+
+      console.log('Form data saved and email sent:', formData);
 
       toast({
         title: "Form submitted successfully!",
@@ -54,7 +71,7 @@ export const ContactForm = () => {
         comment: "",
       });
     } catch (error) {
-      console.error("Error saving form data:", error);
+      console.error("Error submitting form:", error);
       toast({
         title: "Error",
         description: "Failed to submit form. Please try again later.",
