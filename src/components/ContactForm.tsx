@@ -30,15 +30,8 @@ export const ContactForm = () => {
     setIsSubmitting(true);
     
     try {
-      // Save form data to localStorage
-      const submissions = JSON.parse(localStorage.getItem('contactSubmissions') || '[]');
-      submissions.push({
-        ...formData,
-        timestamp: new Date().toISOString(),
-      });
-      localStorage.setItem('contactSubmissions', JSON.stringify(submissions));
+      console.log('Submitting form data:', formData);
 
-      // Send email using relative URL
       const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: {
@@ -47,17 +40,24 @@ export const ContactForm = () => {
         body: JSON.stringify(formData),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to send email');
-      }
-
       const data = await response.json();
       console.log('Server response:', data);
 
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send email');
+      }
+
+      // Save form data to localStorage
+      const submissions = JSON.parse(localStorage.getItem('contactSubmissions') || '[]');
+      submissions.push({
+        ...formData,
+        timestamp: new Date().toISOString(),
+      });
+      localStorage.setItem('contactSubmissions', JSON.stringify(submissions));
+
       toast({
-        title: "Form submitted successfully!",
-        description: "We'll get back to you soon.",
+        title: "Success!",
+        description: "Your message has been sent successfully.",
       });
       
       // Reset form
@@ -69,10 +69,10 @@ export const ContactForm = () => {
         comment: "",
       });
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.error('Form submission error:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to submit form. Please try again later.",
+        description: error instanceof Error ? error.message : "Failed to send message. Please try again later.",
         variant: "destructive",
       });
     } finally {
@@ -118,7 +118,7 @@ export const ContactForm = () => {
         className="min-h-[100px]" 
       />
       <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? "Submitting..." : "Submit"}
+        {isSubmitting ? "Sending..." : "Submit"}
       </Button>
     </form>
   );

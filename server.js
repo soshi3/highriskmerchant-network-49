@@ -7,14 +7,13 @@ dotenv.config();
 
 const app = express();
 
-// Configure CORS to accept all origins in development
 app.use(cors({
   origin: true,
   credentials: true
 }));
 app.use(express.json());
 
-// Configure Nodemailer transporter with more secure settings
+// Configure Nodemailer transporter
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   host: 'smtp.gmail.com',
@@ -26,93 +25,74 @@ const transporter = nodemailer.createTransport({
   },
   tls: {
     rejectUnauthorized: false
-  },
-  debug: true, // Enable debug logs
-  logger: true  // Enable logger
+  }
 });
 
-// Verify transporter configuration on startup
-transporter.verify(function(error, success) {
+// Verify transporter configuration
+transporter.verify((error, success) => {
   if (error) {
-    console.error('Transporter verification failed:', error);
-    console.error('Email configuration:', {
+    console.error('SMTP Configuration Error:', error);
+    console.error('Email Configuration:', {
       user: process.env.EMAIL_USER,
       passLength: process.env.EMAIL_APP_PASSWORD ? process.env.EMAIL_APP_PASSWORD.length : 0
     });
   } else {
-    console.log('Server is ready to take our messages');
+    console.log('Server is ready to send emails');
   }
 });
 
 app.post('/api/send-email', async (req, res) => {
+  console.log('Received email request:', req.body);
+  
   try {
     const { name, email, phone, website, comment } = req.body;
-    
-    console.log('Request body:', req.body);
 
     if (!name || !email) {
-      console.log('Validation failed: Missing name or email');
+      console.log('Validation failed: Missing required fields');
       return res.status(400).json({ error: 'Name and email are required' });
     }
 
-    console.log('Received email request:', { name, email, phone, website });
-
     const mailOptions = {
-      from: `"Contact Form" <${process.env.EMAIL_USER}>`,
+      from: process.env.EMAIL_USER,
       to: 'amllimitedhk@gmail.com',
       subject: 'New Contact Form Submission',
-      text: `
-        Name: ${name}
-        Email: ${email}
-        Phone: ${phone}
-        Website: ${website}
-        Comment: ${comment}
-      `,
       html: `
         <h2>New Contact Form Submission</h2>
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone}</p>
-        <p><strong>Website:</strong> ${website}</p>
-        <p><strong>Comment:</strong> ${comment}</p>
-      `,
+        <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
+        <p><strong>Website:</strong> ${website || 'Not provided'}</p>
+        <p><strong>Comment:</strong> ${comment || 'No comment'}</p>
+      `
     };
 
-    console.log('Attempting to send email with options:', mailOptions);
-    
+    console.log('Attempting to send email with options:', {
+      to: mailOptions.to,
+      from: mailOptions.from,
+      subject: mailOptions.subject
+    });
+
     const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully:', info);
-    console.log('Message ID:', info.messageId);
-    console.log('Preview URL:', nodemailer.getTestMessageUrl(info));
+    console.log('Email sent successfully:', info.messageId);
 
     res.status(200).json({ 
-      message: 'Email sent successfully', 
-      info: {
-        messageId: info.messageId,
-        preview: nodemailer.getTestMessageUrl(info)
-      } 
+      message: 'Email sent successfully',
+      messageId: info.messageId
     });
   } catch (error) {
-    console.error('Detailed error sending email:', error);
-    console.error('Stack trace:', error.stack);
-    console.error('Error code:', error.code);
-    console.error('Error command:', error.command);
-    
-    res.status(500).json({ 
+    console.error('Email sending failed:', error);
+    res.status(500).json({
       error: 'Failed to send email',
-      details: error.message,
-      code: error.code,
-      command: error.command,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      details: error.message
     });
   }
 });
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  console.log('Email configuration:', {
+  console.log(`Server running on port ${PORT}`);
+  console.log('Email configuration loaded:', {
     user: process.env.EMAIL_USER,
-    passLength: process.env.EMAIL_APP_PASSWORD ? process.env.EMAIL_APP_PASSWORD.length : 0
+    passPresent: !!process.env.EMAIL_APP_PASSWORD
   });
 });
