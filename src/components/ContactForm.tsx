@@ -40,11 +40,26 @@ export const ContactForm = () => {
         body: JSON.stringify(formData),
       });
 
-      const responseData = await response.json();
-      console.log('Server response:', responseData);
+      let responseData;
+      const responseText = await response.text();
+      console.log('Raw response:', responseText);
+      
+      try {
+        responseData = responseText ? JSON.parse(responseText) : {};
+      } catch (parseError) {
+        console.error('Error parsing response:', parseError);
+        throw new Error('Invalid server response');
+      }
+
+      console.log('Parsed server response:', responseData);
 
       if (!response.ok) {
-        throw new Error(responseData.error || responseData.message || 'Failed to send email');
+        throw new Error(
+          responseData.error || 
+          responseData.details || 
+          responseData.message || 
+          `Server error: ${response.status}`
+        );
       }
 
       toast({
@@ -52,7 +67,6 @@ export const ContactForm = () => {
         description: "Your message has been sent successfully.",
       });
       
-      // Reset form
       setFormData({
         name: "",
         phone: "",

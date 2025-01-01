@@ -7,7 +7,6 @@ dotenv.config();
 
 const app = express();
 
-// Configure CORS to accept requests from Lovable domains
 app.use(cors({
   origin: [
     'http://localhost:8080',
@@ -19,7 +18,6 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Configure Nodemailer transporter with Gmail
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   host: 'smtp.gmail.com',
@@ -34,7 +32,6 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// Verify email configuration on startup
 transporter.verify((error, success) => {
   if (error) {
     console.error('Email Configuration Error:', error);
@@ -50,7 +47,19 @@ app.post('/api/send-email', async (req, res) => {
     const { name, email, phone, website, comment } = req.body;
 
     if (!name || !email) {
-      return res.status(400).json({ error: 'Name and email are required' });
+      console.error('Validation Error: Missing required fields');
+      return res.status(400).json({ 
+        error: 'Name and email are required',
+        details: 'Required fields are missing from the request'
+      });
+    }
+
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_APP_PASSWORD) {
+      console.error('Configuration Error: Missing email credentials');
+      return res.status(500).json({ 
+        error: 'Email configuration error',
+        details: 'Server email credentials are not properly configured'
+      });
     }
 
     const mailOptions = {
@@ -67,6 +76,12 @@ app.post('/api/send-email', async (req, res) => {
       `
     };
 
+    console.log('Attempting to send email with options:', {
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      from: mailOptions.from
+    });
+
     const info = await transporter.sendMail(mailOptions);
     console.log('Email sent successfully:', info.messageId);
     
@@ -75,10 +90,16 @@ app.post('/api/send-email', async (req, res) => {
       messageId: info.messageId
     });
   } catch (error) {
-    console.error('Email sending failed:', error);
+    console.error('Email sending failed:', {
+      error: error.message,
+      stack: error.stack,
+      code: error.code
+    });
+    
     res.status(500).json({
       error: 'Failed to send email',
-      details: error.message
+      details: error.message,
+      code: error.code
     });
   }
 });
