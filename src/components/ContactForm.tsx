@@ -24,23 +24,19 @@ export const ContactForm = () => {
     setIsSubmitting(true);
     
     try {
-      const response = await fetch("/api/send-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          to: "amllimitedhk@gmail.com",
-          subject: "New Contact Form Submission",
-          ...formData
-        }),
+      // Save form data to localStorage
+      const submissions = JSON.parse(localStorage.getItem('contactSubmissions') || '[]');
+      submissions.push({
+        ...formData,
+        timestamp: new Date().toISOString(),
       });
+      localStorage.setItem('contactSubmissions', JSON.stringify(submissions));
 
-      if (!response.ok) throw new Error("Failed to send email");
+      console.log('Form data saved:', formData);
 
       toast({
-        title: "Form submitted successfully!",
-        description: "We'll get back to you soon.",
+        title: "お問い合わせを受け付けました",
+        description: "内容を確認次第、ご連絡させていただきます。",
       });
       
       // Reset form
@@ -52,10 +48,10 @@ export const ContactForm = () => {
         comment: "",
       });
     } catch (error) {
-      console.error("Error sending email:", error);
+      console.error("Error saving form data:", error);
       toast({
-        title: "Error",
-        description: "Failed to submit form. Please try again later.",
+        title: "エラー",
+        description: "送信に失敗しました。後ほど再度お試しください。",
         variant: "destructive",
       });
     } finally {
@@ -66,7 +62,7 @@ export const ContactForm = () => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-md">
       <Input 
-        placeholder="Name*" 
+        placeholder="お名前*" 
         name="name"
         value={formData.name}
         onChange={handleChange}
@@ -74,34 +70,34 @@ export const ContactForm = () => {
       />
       <Input 
         type="tel" 
-        placeholder="Phone Number" 
+        placeholder="電話番号" 
         name="phone"
         value={formData.phone}
         onChange={handleChange}
       />
       <Input 
         type="email" 
-        placeholder="Email*" 
+        placeholder="メールアドレス*" 
         name="email"
         value={formData.email}
         onChange={handleChange}
         required 
       />
       <Input 
-        placeholder="Website URL" 
+        placeholder="ウェブサイトURL" 
         name="website"
         value={formData.website}
         onChange={handleChange}
       />
       <Textarea 
-        placeholder="Comment" 
+        placeholder="お問い合わせ内容" 
         name="comment"
         value={formData.comment}
         onChange={handleChange}
         className="min-h-[100px]" 
       />
       <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? "Submitting..." : "Submit"}
+        {isSubmitting ? "送信中..." : "送信"}
       </Button>
     </form>
   );
