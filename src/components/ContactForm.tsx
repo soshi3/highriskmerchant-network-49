@@ -40,11 +40,11 @@ export const ContactForm = () => {
         body: JSON.stringify(formData),
       });
 
-      const data = await response.json();
-      console.log('Server response:', data);
+      const responseData = await response.json();
+      console.log('Server response:', responseData);
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to send email');
+        throw new Error(responseData.error || responseData.message || 'Failed to send email');
       }
 
       toast({
