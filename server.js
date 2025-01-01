@@ -1,5 +1,5 @@
 import express from 'express';
-import sgMail from '@sendgrid/mail';
+import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 import cors from 'cors';
 
@@ -9,16 +9,22 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Configure SendGrid with API key
-sgMail.setApiKey(process.env.VITE_SENDGRID_API_KEY);
+// Configure Nodemailer transporter
+const transporter = nodemailer.createTransport({
+  service: 'gmail',  // You can change this to other services like 'outlook', 'yahoo', etc.
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_APP_PASSWORD // Use App Password for Gmail
+  }
+});
 
 app.post('/api/send-email', async (req, res) => {
   try {
     const { name, email, phone, website, comment } = req.body;
 
-    const msg = {
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
       to: 'amllimitedhk@gmail.com',
-      from: process.env.VITE_SENDGRID_FROM_EMAIL,
       subject: 'New Contact Form Submission',
       text: `
         Name: ${name}
@@ -37,16 +43,13 @@ app.post('/api/send-email', async (req, res) => {
       `,
     };
 
-    console.log('Attempting to send email with SendGrid...');
-    await sgMail.send(msg);
+    console.log('Attempting to send email...');
+    await transporter.sendMail(mailOptions);
     console.log('Email sent successfully');
 
     res.status(200).json({ message: 'Email sent successfully' });
   } catch (error) {
     console.error('Error sending email:', error);
-    if (error.response) {
-      console.error(error.response.body);
-    }
     res.status(500).json({ error: 'Failed to send email' });
   }
 });
