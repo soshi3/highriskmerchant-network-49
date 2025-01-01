@@ -6,29 +6,28 @@ const MAILJET_SECRET_KEY = Deno.env.get("MAILJET_SECRET_KEY");
 const TO_EMAIL = Deno.env.get("TO_EMAIL");
 
 serve(async (req) => {
-  // Handle CORS
+  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Check if environment variables are set
+    // Validate environment variables
     if (!MAILJET_API_KEY || !MAILJET_SECRET_KEY || !TO_EMAIL) {
       console.error("Missing required environment variables");
       throw new Error("Server configuration error: Missing email service credentials");
     }
 
-    // Parse the request body
-    const { name, email, phone, message, industry, userId } = await req.json();
+    // Parse request body
+    const { name, email, phone, message, industry } = await req.json();
+    console.log("Received email request:", { name, email, phone, message, industry });
 
     // Validate required fields
     if (!name || !email || !message) {
       throw new Error("Missing required fields");
     }
 
-    console.log("Preparing to send email with data:", { name, email, phone, message, industry });
-
-    // Prepare email data
+    // Prepare email data for Mailjet
     const data = {
       Messages: [
         {
@@ -43,14 +42,6 @@ serve(async (req) => {
             },
           ],
           Subject: `New Contact Form Submission - ${industry || 'General Inquiry'}`,
-          TextPart: `
-            Name: ${name}
-            Email: ${email}
-            Phone: ${phone || 'Not provided'}
-            Industry: ${industry || 'Not specified'}
-            Message: ${message}
-            User ID: ${userId || 'Not logged in'}
-          `,
           HTMLPart: `
             <h3>New Contact Form Submission</h3>
             <p><strong>Name:</strong> ${name}</p>
@@ -58,7 +49,13 @@ serve(async (req) => {
             <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
             <p><strong>Industry:</strong> ${industry || 'Not specified'}</p>
             <p><strong>Message:</strong> ${message}</p>
-            <p><strong>User ID:</strong> ${userId || 'Not logged in'}</p>
+          `,
+          TextPart: `
+            Name: ${name}
+            Email: ${email}
+            Phone: ${phone || 'Not provided'}
+            Industry: ${industry || 'Not specified'}
+            Message: ${message}
           `,
         },
       ],
@@ -71,9 +68,7 @@ serve(async (req) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Basic ${btoa(
-          `${MAILJET_API_KEY}:${MAILJET_SECRET_KEY}`
-        )}`,
+        Authorization: `Basic ${btoa(`${MAILJET_API_KEY}:${MAILJET_SECRET_KEY}`)}`,
       },
       body: JSON.stringify(data),
     });
@@ -82,6 +77,7 @@ serve(async (req) => {
     console.log("Mailjet API response:", result);
 
     if (!response.ok) {
+      console.error("Mailjet API error:", result);
       throw new Error(`Failed to send email: ${JSON.stringify(result)}`);
     }
 
