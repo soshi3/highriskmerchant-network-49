@@ -89,20 +89,22 @@ const Index = () => {
       </section>
 
         {/* Footer */}
-      <footer className="bg-secondary py-20 px-4">
-        <div className="container mx-auto">
-          <div className="max-w-2xl mx-auto text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Let's Get Started?</h2>
-            <p className="text-gray-600 mb-8">
-              Low or high, your risk level won't stop you from getting a fast and easy approval. We accept and provide for a number of industries.
-            </p>
-            <ContactForm />
+        <footer className="bg-secondary py-20 px-4">
+          <div className="container mx-auto">
+            <div className="flex flex-col items-center max-w-2xl mx-auto text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4">Let's Get Started?</h2>
+              <p className="text-gray-600 mb-8">
+                Low or high, your risk level won't stop you from getting a fast and easy approval. We accept and provide for a number of industries.
+              </p>
+              <div className="w-full flex justify-center">
+                <ContactForm />
+              </div>
+            </div>
+            <div className="text-center text-sm text-gray-600 mt-12">
+              Copyright © 2025 High risk merchant .network All rights reserved.
+            </div>
           </div>
-          <div className="text-center text-sm text-gray-600 mt-12">
-            Copyright © 2025 High risk merchant .network All rights reserved.
-          </div>
-        </div>
-      </footer>
+        </footer>
       </div>
     </div>
   );
