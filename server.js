@@ -7,8 +7,16 @@ dotenv.config();
 
 const app = express();
 
-// Configure CORS to accept requests from the frontend
-app.use(cors());
+// Configure CORS to accept requests from Lovable domains
+app.use(cors({
+  origin: [
+    'http://localhost:8080',
+    /\.lovableproject\.com$/,
+    /localhost$/
+  ],
+  methods: ['POST'],
+  credentials: true
+}));
 app.use(express.json());
 
 // Configure Nodemailer transporter with Gmail
