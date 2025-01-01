@@ -27,20 +27,41 @@ export const ContactForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    
     // Form validation
     const form = e.target as HTMLFormElement;
-    if (!form.checkValidity()) {
-      e.stopPropagation();
-      // Show validation messages by triggering invalid event on all form elements
-      Array.from(form.elements).forEach((element) => {
-        if (element instanceof HTMLInputElement) {
-          if (!element.validity.valid) {
-            const invalidEvent = new Event('invalid', { cancelable: true });
-            element.dispatchEvent(invalidEvent);
-          }
-        }
-      });
+    const nameInput = form.querySelector('input[name="name"]') as HTMLInputElement;
+    const emailInput = form.querySelector('input[name="email"]') as HTMLInputElement;
+    
+    let isValid = true;
+
+    // Validate name
+    if (!formData.name.trim()) {
+      nameInput.setCustomValidity("Please enter your name");
+      isValid = false;
+    } else {
+      nameInput.setCustomValidity("");
+    }
+
+    // Validate email
+    if (!formData.email.trim()) {
+      emailInput.setCustomValidity("Please enter your email address");
+      isValid = false;
+    } else if (!emailInput.validity.valid) {
+      emailInput.setCustomValidity("Please enter a valid email address");
+      isValid = false;
+    } else {
+      emailInput.setCustomValidity("");
+    }
+
+    // Show validation messages
+    if (!isValid) {
+      if (!formData.name.trim()) {
+        nameInput.reportValidity();
+      }
+      if (!formData.email.trim() || !emailInput.validity.valid) {
+        emailInput.reportValidity();
+      }
       return;
     }
 
@@ -114,15 +135,8 @@ export const ContactForm = () => {
         name="name"
         value={formData.name}
         onChange={handleChange}
-        required 
+        required
         aria-label="Name"
-        onInvalid={(e: React.InvalidEvent<HTMLInputElement>) => {
-          e.preventDefault();
-          e.target.setCustomValidity("Please enter your name");
-        }}
-        onInput={(e: React.FormEvent<HTMLInputElement>) => {
-          e.currentTarget.setCustomValidity("");
-        }}
       />
       <Input 
         type="tel" 
@@ -138,19 +152,8 @@ export const ContactForm = () => {
         name="email"
         value={formData.email}
         onChange={handleChange}
-        required 
+        required
         aria-label="Email"
-        onInvalid={(e: React.InvalidEvent<HTMLInputElement>) => {
-          e.preventDefault();
-          if (e.target.validity.valueMissing) {
-            e.target.setCustomValidity("Please enter your email address");
-          } else if (e.target.validity.typeMismatch) {
-            e.target.setCustomValidity("Please enter a valid email address");
-          }
-        }}
-        onInput={(e: React.FormEvent<HTMLInputElement>) => {
-          e.currentTarget.setCustomValidity("");
-        }}
       />
       <Input 
         placeholder="Website URL" 
@@ -165,7 +168,7 @@ export const ContactForm = () => {
         value={formData.comment}
         onChange={handleChange}
         className="min-h-[100px]"
-        aria-label="Comment" 
+        aria-label="Comment"
       />
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting ? "Sending..." : "Submit"}
