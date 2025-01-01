@@ -4,8 +4,21 @@ import { Features } from "@/components/Features";
 import { Industries } from "@/components/Industries";
 import { Stats } from "@/components/Stats";
 import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
 
 const Index = () => {
+  const [primaryColor, setPrimaryColor] = useState("#6E59A5");
+
+  const colors = {
+    purple: "#6E59A5",
+    blueTeal: "#4A90B8",
+    dark: "#2A2A2A",
+  };
+
+  useEffect(() => {
+    document.documentElement.style.setProperty("--primary-color", primaryColor);
+  }, [primaryColor]);
+
   return (
     <div className="min-h-screen">
       <div className="relative">
@@ -100,8 +113,21 @@ const Index = () => {
                 <ContactForm />
               </div>
             </div>
-            <div className="text-center text-sm text-gray-600 mt-12">
-              Copyright © 2025 High risk merchant .network All rights reserved.
+            <div className="flex flex-col items-center space-y-4">
+              <div className="flex items-center space-x-4 mb-4">
+                {Object.entries(colors).map(([name, color]) => (
+                  <button
+                    key={name}
+                    onClick={() => setPrimaryColor(color)}
+                    className={`w-8 h-8 rounded-full transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary`}
+                    style={{ backgroundColor: color }}
+                    aria-label={`Switch to ${name} theme`}
+                  />
+                ))}
+              </div>
+              <div className="text-center text-sm text-gray-600">
+                Copyright © 2025 High risk merchant .network All rights reserved.
+              </div>
             </div>
           </div>
         </footer>
