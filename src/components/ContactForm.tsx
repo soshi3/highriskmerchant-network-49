@@ -66,12 +66,18 @@ export const ContactForm = () => {
       });
 
       form.reset();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error sending message:", error);
+      
+      // More detailed error message for users
+      const errorMessage = error.message?.includes('NetworkError') 
+        ? "Unable to connect to our servers. Please check your internet connection and try again."
+        : "Failed to send message. Please try again later.";
+      
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to send message. Please try again later.",
+        description: errorMessage,
       });
     }
   };
