@@ -17,22 +17,27 @@ serve(async (req) => {
     const TO_EMAIL = Deno.env.get('TO_EMAIL')
 
     if (!MAILJET_API_KEY || !MAILJET_SECRET_KEY || !TO_EMAIL) {
+      console.error('Missing required environment variables')
       throw new Error('Missing required environment variables')
     }
 
     const { name, email, message, phone, industry } = await req.json()
 
     if (!name || !email || !message) {
+      console.error('Missing required fields')
       throw new Error('Missing required fields')
     }
 
     console.log('Sending email with data:', { name, email, phone, industry })
 
+    // Create base64 encoded auth string
+    const auth = btoa(`${MAILJET_API_KEY}:${MAILJET_SECRET_KEY}`)
+    
     const response = await fetch('https://api.mailjet.com/v3.1/send', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Basic ${btoa(`${MAILJET_API_KEY}:${MAILJET_SECRET_KEY}`)}`
+        'Authorization': `Basic ${auth}`
       },
       body: JSON.stringify({
         Messages: [
@@ -68,16 +73,15 @@ serve(async (req) => {
       })
     })
 
-    console.log('Mailjet API response:', response.status)
+    console.log('Mailjet API response status:', response.status)
+    
+    const responseText = await response.text()
+    console.log('Mailjet API response body:', responseText)
     
     if (!response.ok) {
-      const error = await response.text()
-      console.error('Mailjet API error:', error)
-      throw new Error('Failed to send email')
+      console.error('Mailjet API error:', responseText)
+      throw new Error(`Failed to send email: ${responseText}`)
     }
-
-    const result = await response.json()
-    console.log('Email sent successfully:', result)
 
     return new Response(
       JSON.stringify({ success: true }),
