@@ -6,18 +6,10 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-interface EmailRequest {
-  name: string;
-  email: string;
-  message: string;
-  phone?: string;
-  industry?: string;
-}
-
 serve(async (req) => {
-  // Handle CORS
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response(null, { headers: corsHeaders })
   }
 
   try {
@@ -29,11 +21,13 @@ serve(async (req) => {
       throw new Error('Missing required environment variables')
     }
 
-    const { name, email, message, phone, industry } = await req.json() as EmailRequest
+    const { name, email, message, phone, industry } = await req.json()
 
     if (!name || !email || !message) {
       throw new Error('Missing required fields')
     }
+
+    console.log('Sending email with data:', { name, email, phone, industry })
 
     const mailjet = createClient({
       apiKey: MAILJET_API_KEY,
@@ -73,9 +67,12 @@ serve(async (req) => {
       ]
     }
 
+    console.log('Sending email with Mailjet...')
     const result = await mailjet
       .post("send", { version: 'v3.1' })
       .request(data)
+    
+    console.log('Email sent successfully:', result)
 
     return new Response(
       JSON.stringify({ success: true }),
