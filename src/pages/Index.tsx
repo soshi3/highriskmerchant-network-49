@@ -5,6 +5,8 @@ import { Industries } from "@/components/Industries";
 import { Stats } from "@/components/Stats";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 const Index = () => {
   const [primaryColor, setPrimaryColor] = useState("#6E59A5");
@@ -25,6 +27,48 @@ const Index = () => {
       gradient: "rgba(42,42,42,0.3)",
       secondary: "#F2F2F2",
     },
+  };
+
+  const handleDownload = async () => {
+    try {
+      console.log("Starting download process");
+      const { data, error } = await supabase.functions.invoke('download-data', {
+        body: { type: 'all' }
+      });
+
+      if (error) {
+        console.error("Download error:", error);
+        toast({
+          title: "Download Failed",
+          description: "There was an error downloading the data. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Create a Blob from the data
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'high-risk-payments-data.json';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast({
+        title: "Download Complete",
+        description: "Your data has been downloaded successfully.",
+      });
+    } catch (err) {
+      console.error("Download error:", err);
+      toast({
+        title: "Download Failed",
+        description: "There was an error downloading the data. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   useEffect(() => {
@@ -74,6 +118,9 @@ const Index = () => {
                     </div>
                   </div>
                 </div>
+                <Button onClick={handleDownload} className="mt-4">
+                  Download Data
+                </Button>
               </div>
               <div className="lg:pl-12">
                 <ContactForm />
@@ -83,40 +130,40 @@ const Index = () => {
         </section>
 
         {/* Features Section */}
-      <section className="py-20 px-4 bg-white">
-        <div className="container mx-auto">
-          <div className="max-w-2xl mx-auto text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">
-              High-Risk Merchant Account Provider
-            </h2>
-            <p className="text-gray-600">
-              Our company specializes in providing merchant account services tailored for high-risk industries, helping you navigate complex payment environments with ease.
-            </p>
+        <section className="py-20 px-4 bg-white">
+          <div className="container mx-auto">
+            <div className="max-w-2xl mx-auto text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4">
+                High-Risk Merchant Account Provider
+              </h2>
+              <p className="text-gray-600">
+                Our company specializes in providing merchant account services tailored for high-risk industries, helping you navigate complex payment environments with ease.
+              </p>
+            </div>
+            <Features />
+            <div className="text-center mt-12">
+              <Button size="lg">Get Started Today</Button>
+            </div>
           </div>
-          <Features />
-          <div className="text-center mt-12">
-            <Button size="lg">Get Started Today</Button>
-          </div>
-        </div>
-      </section>
+        </section>
 
         {/* Industries Section */}
-      <section className="py-20 px-4 bg-secondary" id="industries">
-        <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">
-            High-Risk Industries We Accept
-          </h2>
-          <Industries />
-        </div>
-      </section>
+        <section className="py-20 px-4 bg-secondary" id="industries">
+          <div className="container mx-auto">
+            <h2 className="text-3xl font-bold text-center mb-12">
+              High-Risk Industries We Accept
+            </h2>
+            <Industries />
+          </div>
+        </section>
 
         {/* Stats Section */}
-      <section className="py-20 px-4 bg-white">
-        <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">About Us</h2>
-          <Stats />
-        </div>
-      </section>
+        <section className="py-20 px-4 bg-white">
+          <div className="container mx-auto">
+            <h2 className="text-3xl font-bold text-center mb-12">About Us</h2>
+            <Stats />
+          </div>
+        </section>
 
         {/* Footer */}
         <footer className="bg-[var(--secondary-color)] py-20 px-4">
