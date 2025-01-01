@@ -32,6 +32,7 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// Test email configuration on startup
 transporter.verify((error, success) => {
   if (error) {
     console.error('Email Configuration Error:', error);
@@ -46,6 +47,7 @@ app.post('/api/send-email', async (req, res) => {
   try {
     const { name, email, phone, website, comment } = req.body;
 
+    // Validate required fields
     if (!name || !email) {
       console.error('Validation Error: Missing required fields');
       return res.status(400).json({ 
@@ -54,6 +56,7 @@ app.post('/api/send-email', async (req, res) => {
       });
     }
 
+    // Check email configuration
     if (!process.env.EMAIL_USER || !process.env.EMAIL_APP_PASSWORD) {
       console.error('Configuration Error: Missing email credentials');
       return res.status(500).json({ 
