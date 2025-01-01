@@ -7,43 +7,51 @@ import { Button } from "@/components/ui/button";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-secondary to-white">
-      <Navbar />
-      
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4">
-        <div className="container mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
-              <div className="inline-block px-4 py-2 bg-primary/10 rounded-full text-primary font-medium">
-                8 Years in Business
-              </div>
-              <h1 className="text-4xl md:text-5xl font-bold">
-                High-Risk Merchant Account Provider
-              </h1>
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="flex items-start space-x-2">
-                  <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-primary">✓</div>
-                  <div>
-                    <div className="font-medium">99% Approval Rate</div>
-                    <div className="text-sm text-gray-600">Industry-leading acceptance</div>
+    <div className="min-h-screen">
+      <div className="relative">
+        {/* Stripe-like gradient background */}
+        <div className="absolute inset-0 overflow-hidden -z-10">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-secondary to-white"></div>
+          <div className="absolute top-0 left-0 right-0 h-[500px] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(110,89,165,0.3),rgba(255,255,255,0))]"></div>
+        </div>
+        
+        <Navbar />
+        
+        {/* Hero Section */}
+        <section className="pt-32 pb-20 px-4">
+          <div className="container mx-auto">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div className="space-y-6">
+                <div className="inline-block px-4 py-2 bg-primary/10 rounded-full text-primary font-medium">
+                  8 Years in Business
+                </div>
+                <h1 className="text-4xl md:text-5xl font-bold">
+                  High-Risk Merchant Account Provider
+                </h1>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="flex items-start space-x-2">
+                    <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-primary">✓</div>
+                    <div>
+                      <div className="font-medium">99% Approval Rate</div>
+                      <div className="text-sm text-gray-600">Industry-leading acceptance</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-primary">✓</div>
+                    <div>
+                      <div className="font-medium">No Setup Fee</div>
+                      <div className="text-sm text-gray-600">Start processing instantly</div>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-start space-x-2">
-                  <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-primary">✓</div>
-                  <div>
-                    <div className="font-medium">No Setup Fee</div>
-                    <div className="text-sm text-gray-600">Start processing instantly</div>
-                  </div>
-                </div>
               </div>
-            </div>
-            <div className="lg:pl-12">
-              <ContactForm />
+              <div className="lg:pl-12">
+                <ContactForm />
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
       {/* Features Section */}
       <section className="py-20 px-4 bg-white">
