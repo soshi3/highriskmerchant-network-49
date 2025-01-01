@@ -11,12 +11,6 @@ export const Navbar = () => {
               HighRisk merchant.network
             </a>
             <div className="hidden md:flex space-x-6">
-              <a href="#industries" className="text-gray-600 hover:text-primary">
-                Industries
-              </a>
-              <a href="#solutions" className="text-gray-600 hover:text-primary">
-                Solutions
-              </a>
             </div>
           </div>
           <div className="flex items-center space-x-4">
