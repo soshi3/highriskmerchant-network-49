@@ -18,7 +18,7 @@ serve(async (req) => {
 
     if (!MAILJET_API_KEY || !MAILJET_SECRET_KEY || !TO_EMAIL) {
       console.error('Missing required environment variables')
-      throw new Error('Missing required environment variables')
+      throw new Error('Server configuration error')
     }
 
     const { name, email, message, phone, industry } = await req.json()
@@ -28,59 +28,68 @@ serve(async (req) => {
       throw new Error('Missing required fields')
     }
 
-    console.log('Sending email with data:', { name, email, phone, industry })
+    console.log('Preparing to send email with data:', { 
+      toEmail: TO_EMAIL,
+      fromName: name,
+      fromEmail: email,
+      industry 
+    })
 
     // Create base64 encoded auth string
     const auth = btoa(`${MAILJET_API_KEY}:${MAILJET_SECRET_KEY}`)
     
+    const mailjetPayload = {
+      Messages: [
+        {
+          From: {
+            Email: TO_EMAIL,
+            Name: "High Risk Merchant"
+          },
+          To: [
+            {
+              Email: TO_EMAIL,
+              Name: "Admin"
+            }
+          ],
+          Subject: `New Contact Form Submission from ${name}`,
+          TextPart: `
+            Name: ${name}
+            Email: ${email}
+            Phone: ${phone || 'Not provided'}
+            Industry: ${industry || 'Not provided'}
+            Message: ${message}
+          `,
+          HTMLPart: `
+            <h3>New Contact Form Submission</h3>
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
+            <p><strong>Industry:</strong> ${industry || 'Not provided'}</p>
+            <p><strong>Message:</strong> ${message}</p>
+          `
+        }
+      ]
+    }
+
+    console.log('Sending request to Mailjet with payload:', JSON.stringify(mailjetPayload, null, 2))
+
     const response = await fetch('https://api.mailjet.com/v3.1/send', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Basic ${auth}`
       },
-      body: JSON.stringify({
-        Messages: [
-          {
-            From: {
-              Email: TO_EMAIL,
-              Name: "High Risk Merchant"
-            },
-            To: [
-              {
-                Email: TO_EMAIL,
-                Name: "Admin"
-              }
-            ],
-            Subject: `New Contact Form Submission from ${name}`,
-            TextPart: `
-              Name: ${name}
-              Email: ${email}
-              Phone: ${phone || 'Not provided'}
-              Industry: ${industry || 'Not provided'}
-              Message: ${message}
-            `,
-            HTMLPart: `
-              <h3>New Contact Form Submission</h3>
-              <p><strong>Name:</strong> ${name}</p>
-              <p><strong>Email:</strong> ${email}</p>
-              <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
-              <p><strong>Industry:</strong> ${industry || 'Not provided'}</p>
-              <p><strong>Message:</strong> ${message}</p>
-            `
-          }
-        ]
-      })
+      body: JSON.stringify(mailjetPayload)
     })
 
     console.log('Mailjet API response status:', response.status)
     
-    const responseText = await response.text()
-    console.log('Mailjet API response body:', responseText)
+    const responseData = await response.text()
+    console.log('Mailjet API response body:', responseData)
     
     if (!response.ok) {
-      console.error('Mailjet API error:', responseText)
-      throw new Error(`Failed to send email: ${responseText}`)
+      console.error('Mailjet API error:', responseData)
+      throw new Error(`Failed to send email: ${responseData}`)
     }
 
     return new Response(
