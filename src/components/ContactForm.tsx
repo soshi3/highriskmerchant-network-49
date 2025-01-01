@@ -1,183 +1,146 @@
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
+import { useParams } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+
+const formSchema = z.object({
+  name: z.string()
+    .min(2, { message: "Name must be at least 2 characters." })
+    .regex(/^[a-zA-Z\s]*$/, { message: "Name can only contain letters and spaces." }),
+  email: z.string().email({ message: "Invalid email address." }),
+  phone: z.string().optional(),
+  message: z.string().min(10, { message: "Message must be at least 10 characters." }),
+});
 
 export const ContactForm = () => {
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    website: "",
-    comment: "",
+  const { industryName } = useParams();
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      message: "",
+    },
   });
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Form validation
-    const form = e.target as HTMLFormElement;
-    const nameInput = form.querySelector('input[name="name"]') as HTMLInputElement;
-    const emailInput = form.querySelector('input[name="email"]') as HTMLInputElement;
-    
-    let isValid = true;
-
-    // Validate name (minimum 2 characters, no numbers)
-    const nameRegex = /^[A-Za-z\s]{2,}$/;
-    if (!formData.name.trim()) {
-      nameInput.setCustomValidity("Please enter your name");
-      isValid = false;
-    } else if (!nameRegex.test(formData.name.trim())) {
-      nameInput.setCustomValidity("Please enter a valid name (at least 2 letters, no numbers)");
-      isValid = false;
-    } else {
-      nameInput.setCustomValidity("");
-    }
-
-    // Validate email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email.trim()) {
-      emailInput.setCustomValidity("Please enter your email address");
-      isValid = false;
-    } else if (!emailRegex.test(formData.email.trim())) {
-      emailInput.setCustomValidity("Please enter a valid email address");
-      isValid = false;
-    } else {
-      emailInput.setCustomValidity("");
-    }
-
-    // Show validation messages
-    if (!isValid) {
-      if (!formData.name.trim() || !nameRegex.test(formData.name.trim())) {
-        nameInput.reportValidity();
-      }
-      if (!formData.email.trim() || !emailRegex.test(formData.email.trim())) {
-        emailInput.reportValidity();
-      }
-      return;
-    }
-
-    setIsSubmitting(true);
-    
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      console.log('Submitting form data:', formData);
-
-      const response = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      let responseData;
-      const responseText = await response.text();
-      console.log('Raw response:', responseText);
+      const { data: { user } } = await supabase.auth.getUser();
       
-      try {
-        responseData = responseText ? JSON.parse(responseText) : {};
-      } catch (parseError) {
-        console.error('Error parsing response:', parseError);
-        throw new Error('Invalid server response');
-      }
-
-      console.log('Parsed server response:', responseData);
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-email`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            ...values,
+            industry: industryName,
+            userId: user?.id,
+          }),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error(
-          responseData.error || 
-          responseData.details || 
-          responseData.message || 
-          `Server error: ${response.status}`
-        );
+        throw new Error("Failed to send message");
       }
 
       toast({
         title: "Success!",
-        description: "Your message has been sent successfully.",
+        description: "Your message has been sent. We'll get back to you soon.",
       });
-      
-      setFormData({
-        name: "",
-        phone: "",
-        email: "",
-        website: "",
-        comment: "",
-      });
+
+      form.reset();
     } catch (error) {
-      console.error('Form submission error:', error);
+      console.error("Error sending message:", error);
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to send message. Please try again later.",
         variant: "destructive",
+        title: "Error",
+        description: "Failed to send message. Please try again later.",
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   return (
-    <form 
-      onSubmit={handleSubmit} 
-      className="space-y-4 w-full max-w-md"
-      noValidate
-    >
-      <Input 
-        placeholder="Name*" 
-        name="name"
-        value={formData.name}
-        onChange={handleChange}
-        required
-        aria-label="Name"
-      />
-      <Input 
-        type="tel" 
-        placeholder="Phone Number" 
-        name="phone"
-        value={formData.phone}
-        onChange={handleChange}
-        aria-label="Phone Number"
-      />
-      <Input 
-        type="email" 
-        placeholder="Email*" 
-        name="email"
-        value={formData.email}
-        onChange={handleChange}
-        required
-        aria-label="Email"
-      />
-      <Input 
-        placeholder="Website URL" 
-        name="website"
-        value={formData.website}
-        onChange={handleChange}
-        aria-label="Website URL"
-      />
-      <Textarea 
-        placeholder="Comment" 
-        name="comment"
-        value={formData.comment}
-        onChange={handleChange}
-        className="min-h-[100px]"
-        aria-label="Comment"
-      />
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? "Sending..." : "Submit"}
-      </Button>
-    </form>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input placeholder="John Doe" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input placeholder="john@example.com" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Phone (Optional)</FormLabel>
+              <FormControl>
+                <Input placeholder="+1 234 567 8900" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="message"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Message</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Tell us about your business needs..."
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" className="w-full">
+          Send Message
+        </Button>
+      </form>
+    </Form>
   );
 };
