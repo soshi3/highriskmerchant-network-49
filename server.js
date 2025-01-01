@@ -7,15 +7,8 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors({
-  origin: [
-    'http://localhost:8080',
-    /\.lovableproject\.com$/,
-    /localhost$/
-  ],
-  methods: ['POST'],
-  credentials: true
-}));
+// Updated CORS configuration to handle all domains
+app.use(cors());
 app.use(express.json());
 
 const transporter = nodemailer.createTransport({
@@ -26,9 +19,6 @@ const transporter = nodemailer.createTransport({
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_APP_PASSWORD
-  },
-  tls: {
-    rejectUnauthorized: false
   }
 });
 
@@ -49,19 +39,8 @@ app.post('/api/send-email', async (req, res) => {
 
     // Validate required fields
     if (!name || !email) {
-      console.error('Validation Error: Missing required fields');
       return res.status(400).json({ 
-        error: 'Name and email are required',
-        details: 'Required fields are missing from the request'
-      });
-    }
-
-    // Check email configuration
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_APP_PASSWORD) {
-      console.error('Configuration Error: Missing email credentials');
-      return res.status(500).json({ 
-        error: 'Email configuration error',
-        details: 'Server email credentials are not properly configured'
+        error: 'Name and email are required'
       });
     }
 
@@ -81,28 +60,22 @@ app.post('/api/send-email', async (req, res) => {
 
     console.log('Attempting to send email with options:', {
       to: mailOptions.to,
-      subject: mailOptions.subject,
-      from: mailOptions.from
+      subject: mailOptions.subject
     });
 
     const info = await transporter.sendMail(mailOptions);
     console.log('Email sent successfully:', info.messageId);
     
-    res.status(200).json({ 
+    return res.status(200).json({ 
       message: 'Email sent successfully',
       messageId: info.messageId
     });
   } catch (error) {
-    console.error('Email sending failed:', {
-      error: error.message,
-      stack: error.stack,
-      code: error.code
-    });
+    console.error('Email sending failed:', error);
     
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Failed to send email',
-      details: error.message,
-      code: error.code
+      details: error.message
     });
   }
 });
