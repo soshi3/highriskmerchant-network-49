@@ -39,9 +39,9 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       <div className="relative">
-        {/* Updated gradient background with more dramatic effect */}
+        {/* Updated gradient background with lighter left and darker right side */}
         <div className="absolute inset-0 overflow-hidden -z-10">
-          <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary-color)] via-[var(--gradient-color)] to-white opacity-90"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-white via-[var(--gradient-color)] to-[var(--primary-color)] opacity-90"></div>
           <div className="absolute top-0 left-0 right-0 h-[500px] bg-[radial-gradient(ellipse_100%_100%_at_50%_-20%,var(--primary-color),transparent)] opacity-40"></div>
         </div>
         
