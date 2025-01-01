@@ -4,10 +4,11 @@ import { Features } from "@/components/Features";
 import { Industries } from "@/components/Industries";
 import { Stats } from "@/components/Stats";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 const Index = () => {
   const [primaryColor, setPrimaryColor] = useState("#6E59A5");
+  const topFormRef = useRef<HTMLDivElement>(null);
 
   const colors = {
     purple: {
@@ -36,10 +37,13 @@ const Index = () => {
     }
   }, [primaryColor, colors]);
 
+  const scrollToTopForm = () => {
+    topFormRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <div className="min-h-screen">
       <div className="relative">
-        {/* Updated gradient background with lighter left and darker right side */}
         <div className="absolute inset-0 overflow-hidden -z-10">
           <div className="absolute inset-0 bg-gradient-to-r from-white via-[var(--gradient-color)] to-[var(--primary-color)] opacity-90"></div>
           <div className="absolute top-0 left-0 right-0 h-[500px] bg-[radial-gradient(ellipse_100%_100%_at_50%_-20%,var(--primary-color),transparent)] opacity-40"></div>
@@ -75,7 +79,7 @@ const Index = () => {
                   </div>
                 </div>
               </div>
-              <div className="lg:pl-12">
+              <div className="lg:pl-12" ref={topFormRef}>
                 <ContactForm />
               </div>
             </div>
@@ -83,40 +87,40 @@ const Index = () => {
         </section>
 
         {/* Features Section */}
-      <section className="py-20 px-4 bg-white">
-        <div className="container mx-auto">
-          <div className="max-w-2xl mx-auto text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">
-              High-Risk Merchant Account Provider
-            </h2>
-            <p className="text-gray-600">
-              Our company specializes in providing merchant account services tailored for high-risk industries, helping you navigate complex payment environments with ease.
-            </p>
+        <section className="py-20 px-4 bg-white">
+          <div className="container mx-auto">
+            <div className="max-w-2xl mx-auto text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4">
+                High-Risk Merchant Account Provider
+              </h2>
+              <p className="text-gray-600">
+                Our company specializes in providing merchant account services tailored for high-risk industries, helping you navigate complex payment environments with ease.
+              </p>
+            </div>
+            <Features />
+            <div className="text-center mt-12">
+              <Button size="lg" onClick={scrollToTopForm}>Get Started Today</Button>
+            </div>
           </div>
-          <Features />
-          <div className="text-center mt-12">
-            <Button size="lg">Get Started Today</Button>
-          </div>
-        </div>
-      </section>
+        </section>
 
         {/* Industries Section */}
-      <section className="py-20 px-4 bg-secondary" id="industries">
-        <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">
-            High-Risk Industries We Accept
-          </h2>
-          <Industries />
-        </div>
-      </section>
+        <section className="py-20 px-4 bg-secondary" id="industries">
+          <div className="container mx-auto">
+            <h2 className="text-3xl font-bold text-center mb-12">
+              High-Risk Industries We Accept
+            </h2>
+            <Industries />
+          </div>
+        </section>
 
         {/* Stats Section */}
-      <section className="py-20 px-4 bg-white">
-        <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">About Us</h2>
-          <Stats />
-        </div>
-      </section>
+        <section className="py-20 px-4 bg-white">
+          <div className="container mx-auto">
+            <h2 className="text-3xl font-bold text-center mb-12">About Us</h2>
+            <Stats />
+          </div>
+        </section>
 
         {/* Footer */}
         <footer className="bg-[var(--secondary-color)] py-20 px-4">
