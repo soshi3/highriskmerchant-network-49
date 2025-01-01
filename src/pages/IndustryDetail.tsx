@@ -67,7 +67,7 @@ const IndustryDetail = () => {
           </Link>
           
           <div className="grid lg:grid-cols-2 gap-12 items-start">
-            <div className="space-y-8 animate-fade-in">
+            <div className="space-y-8 animate-fade-in" id="industry-content">
               <div className="flex items-center space-x-4 bg-white/50 backdrop-blur-sm p-6 rounded-lg shadow-sm">
                 <div className="p-3 bg-primary/10 rounded-lg">
                   <industry.icon className="h-8 w-8 text-primary" />
