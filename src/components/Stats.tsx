@@ -10,20 +10,15 @@ const stats = [
   { number: 3, label: "Offices (USA, UK, UAE)" },
 ];
 
-// StatItemコンポーネントを作成して個々の統計アイテムを管理
 const StatItem = ({ stat, isVisible }: { stat: typeof stats[0], isVisible: boolean }) => {
-  const animatedValue = useCountAnimation(stat.number);
+  const animatedValue = useCountAnimation(isVisible ? stat.number : 0);
 
   return (
     <div className="text-center">
       <div className="text-3xl font-bold text-primary mb-2">
-        {isVisible && (
-          <>
-            {stat.prefix}
-            {animatedValue}
-            {stat.suffix}
-          </>
-        )}
+        {stat.prefix}
+        {animatedValue}
+        {stat.suffix}
       </div>
       <div className="text-sm text-gray-600">{stat.label}</div>
     </div>
@@ -34,6 +29,7 @@ export const Stats = () => {
   const { ref, inView } = useInView({
     triggerOnce: true,
     threshold: 0.1,
+    rootMargin: '-50px',
   });
 
   return (
