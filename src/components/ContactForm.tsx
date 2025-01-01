@@ -1,10 +1,11 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { toast } from "@/components/ui/use-toast";
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/use-toast";
 
 export const ContactForm = () => {
+  const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -14,9 +15,14 @@ export const ContactForm = () => {
     comment: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -35,8 +41,8 @@ export const ContactForm = () => {
       console.log('Form data saved:', formData);
 
       toast({
-        title: "お問い合わせを受け付けました",
-        description: "内容を確認次第、ご連絡させていただきます。",
+        title: "Form submitted successfully!",
+        description: "We'll get back to you soon.",
       });
       
       // Reset form
@@ -50,8 +56,8 @@ export const ContactForm = () => {
     } catch (error) {
       console.error("Error saving form data:", error);
       toast({
-        title: "エラー",
-        description: "送信に失敗しました。後ほど再度お試しください。",
+        title: "Error",
+        description: "Failed to submit form. Please try again later.",
         variant: "destructive",
       });
     } finally {
@@ -62,7 +68,7 @@ export const ContactForm = () => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-md">
       <Input 
-        placeholder="お名前*" 
+        placeholder="Name*" 
         name="name"
         value={formData.name}
         onChange={handleChange}
@@ -70,34 +76,34 @@ export const ContactForm = () => {
       />
       <Input 
         type="tel" 
-        placeholder="電話番号" 
+        placeholder="Phone Number" 
         name="phone"
         value={formData.phone}
         onChange={handleChange}
       />
       <Input 
         type="email" 
-        placeholder="メールアドレス*" 
+        placeholder="Email*" 
         name="email"
         value={formData.email}
         onChange={handleChange}
         required 
       />
       <Input 
-        placeholder="ウェブサイトURL" 
+        placeholder="Website URL" 
         name="website"
         value={formData.website}
         onChange={handleChange}
       />
       <Textarea 
-        placeholder="お問い合わせ内容" 
+        placeholder="Comment" 
         name="comment"
         value={formData.comment}
         onChange={handleChange}
         className="min-h-[100px]" 
       />
       <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? "送信中..." : "送信"}
+        {isSubmitting ? "Submitting..." : "Submit"}
       </Button>
     </form>
   );
