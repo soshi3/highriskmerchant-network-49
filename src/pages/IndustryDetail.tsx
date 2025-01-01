@@ -6,19 +6,19 @@ import { Navbar } from "@/components/Navbar";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
-// 業界別のSEOコンテンツを定義
+// Define industry-specific SEO content
 const industrySeoContent: { [key: string]: string } = {
-  "subscription-box": `サブスクリプションボックスビジネスの決済処理において、安全性と効率性は最も重要な要素です。
-  当社の決済ソリューションは、定期課金の自動処理、顧客データの暗号化、不正検知システムを完備し、
-  サブスクリプションビジネスの成長をサポートします。コンプライアンスに準拠した決済システムで、
-  顧客満足度の向上と事業の拡大を実現します。`,
-  "adult": `アダルトエンターテインメント業界向けの決済ソリューションを提供しています。
-  高いセキュリティ基準と法令遵守を重視し、スムーズな取引処理を実現します。
-  チャージバック対策や不正利用防止機能を標準装備し、安全な決済環境を構築します。`,
-  "airline-booking": `航空券予約システムに特化した決済処理ソリューションを提供しています。
-  リアルタイムの予約確認、複数通貨対応、セキュアな支払い処理を実現し、
-  航空会社やトラベルエージェンシーの業務効率化をサポートします。`,
-  // ... 他の業界も同様に追加
+  "subscription-box": `In subscription box business payment processing, security and efficiency are the most crucial elements. 
+  Our payment solutions feature automated recurring billing, customer data encryption, and fraud detection systems to support 
+  your subscription business growth. With our compliance-ready payment system, we help you improve customer satisfaction 
+  and achieve business expansion.`,
+  "adult": `We provide payment solutions tailored for the adult entertainment industry. 
+  With a focus on high security standards and regulatory compliance, we ensure smooth transaction processing. 
+  Our system comes equipped with chargeback prevention and fraud protection features to create a secure payment environment.`,
+  "airline-booking": `We offer specialized payment processing solutions for airline ticket reservation systems. 
+  By providing real-time booking confirmation, multi-currency support, and secure payment processing, 
+  we help streamline operations for airlines and travel agencies.`,
+  // ... Add other industries similarly
 };
 
 const IndustryDetail = () => {
@@ -46,9 +46,9 @@ const IndustryDetail = () => {
     );
   }
 
-  const seoContent = industrySeoContent[industryName || ''] || `${industry.name}業界向けの決済ソリューションを提供しています。
-    高度なセキュリティ対策と効率的な取引処理システムで、お客様のビジネスの成長をサポートします。
-    24時間365日のサポート体制と、豊富な業界経験を活かしたサービスを提供しています。`;
+  const seoContent = industrySeoContent[industryName || ''] || `We provide payment solutions tailored for the ${industry.name} industry.
+    With advanced security measures and efficient transaction processing systems, we support your business growth.
+    Our services are backed by 24/7 support and extensive industry experience.`;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-secondary/50 to-white">
@@ -78,10 +78,10 @@ const IndustryDetail = () => {
                 </div>
               </div>
 
-              {/* SEOコンテンツを追加 */}
+              {/* Add SEO content */}
               <Card className="border-none shadow-lg bg-white/80 backdrop-blur-sm">
                 <CardContent className="p-8">
-                  <h2 className="text-2xl font-semibold mb-6 text-gray-900">{industry.name}業界向け決済ソリューション</h2>
+                  <h2 className="text-2xl font-semibold mb-6 text-gray-900">Payment Solutions for {industry.name}</h2>
                   <div className="prose prose-gray max-w-none">
                     <p className="text-gray-700 leading-relaxed whitespace-pre-line">
                       {seoContent}
