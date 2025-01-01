@@ -28,8 +28,8 @@ serve(async (req) => {
 
     // Prepare email data
     const emailData = {
-      from: "AML Limited <info@amlltd.com>",
-      to: ["info@amlltd.com"],
+      from: "onboarding@resend.dev", // Using Resend's default verified sender
+      to: ["amllimitedhk@gmail.com"], // Your receiving email address
       subject: `New Contact Form Submission - ${industry || 'General Inquiry'}`,
       html: `
         <h3>New Contact Form Submission</h3>
