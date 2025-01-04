@@ -15,7 +15,7 @@ export const Navbar = () => {
           </div>
           <div className="flex items-center space-x-4">
             <Button variant="default" size="lg">
-              はじめる
+              お問い合わせ
             </Button>
             <button className="md:hidden">
               <Menu className="h-6 w-6" />
