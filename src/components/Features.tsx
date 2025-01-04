@@ -3,23 +3,23 @@ import { Shield, Zap, Headphones, Activity } from "lucide-react";
 const features = [
   {
     icon: Shield,
-    title: "Secure Processing",
-    description: "Advanced fraud protection and secure payment processing for high-risk businesses",
+    title: "セキュアな処理",
+    description: "ハイリスクビジネス向けの高度な不正防止と安全な決済処理",
   },
   {
     icon: Zap,
-    title: "Fast Integration",
-    description: "Quick and easy integration with your existing systems and platforms",
+    title: "迅速な統合",
+    description: "既存のシステムやプラットフォームとの素早く簡単な統合",
   },
   {
     icon: Headphones,
-    title: "Expert Support",
-    description: "Dedicated team of experts to help you navigate high-risk processing",
+    title: "専門家のサポート",
+    description: "ハイリスク処理をナビゲートする専門家チームのサポート",
   },
   {
     icon: Activity,
-    title: "24/7 Monitoring",
-    description: "Continuous transaction monitoring and risk management",
+    title: "24時間監視",
+    description: "継続的な取引監視とリスク管理",
   },
 ];
 

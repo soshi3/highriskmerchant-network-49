@@ -8,14 +8,14 @@ export const Navbar = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-8">
             <a href="/" className="text-xl font-bold text-primary">
-              HighRisk merchant.network
+              ハイリスク マーチャント ネットワーク
             </a>
             <div className="hidden md:flex space-x-6">
             </div>
           </div>
           <div className="flex items-center space-x-4">
             <Button variant="default" size="lg">
-              Get Started
+              はじめる
             </Button>
             <button className="md:hidden">
               <Menu className="h-6 w-6" />

@@ -2,12 +2,12 @@ import { useInView } from 'react-intersection-observer';
 import { useCountAnimation } from '@/hooks/useCountAnimation';
 
 const stats = [
-  { number: 8, label: "Years in Business", suffix: "+" },
-  { number: 500, label: "Worldwide Customers", suffix: "+" },
-  { number: 30, label: "Currencies Accepted", suffix: "+" },
-  { number: 25, label: "Technology Integrations", suffix: "+" },
-  { number: 1, label: "Processed Annually", prefix: "$", suffix: "B+" },
-  { number: 3, label: "Offices (USA, UK, UAE)" },
+  { number: 8, label: "年の実績", suffix: "+" },
+  { number: 500, label: "世界中の顧客数", suffix: "+" },
+  { number: 30, label: "対応通貨数", suffix: "+" },
+  { number: 25, label: "技術統合数", suffix: "+" },
+  { number: 1, label: "年間取引額", prefix: "$", suffix: "B+" },
+  { number: 3, label: "拠点（米国、英国、UAE）" },
 ];
 
 const StatItem = ({ stat, isVisible }: { stat: typeof stats[0], isVisible: boolean }) => {
