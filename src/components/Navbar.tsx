@@ -8,7 +8,7 @@ export const Navbar = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-8">
             <a href="/" className="text-xl font-bold text-primary">
-              ハイリスク マーチャント ネットワーク
+              クレジットカード決済代行
             </a>
             <div className="hidden md:flex space-x-6">
             </div>
