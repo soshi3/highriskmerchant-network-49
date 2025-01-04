@@ -7,28 +7,27 @@ import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEffect } from "react";
 
-// Define industry-specific SEO content
+// 業界別のSEOコンテンツを定義
 const industrySeoContent: { [key: string]: string } = {
-  "subscription-box": `In subscription box business payment processing, security and efficiency are the most crucial elements. 
-  Our payment solutions feature automated recurring billing, customer data encryption, and fraud detection systems to support 
-  your subscription business growth. With our compliance-ready payment system, we help you improve customer satisfaction 
-  and achieve business expansion.`,
-  "adult": `We provide payment solutions tailored for the adult entertainment industry. 
-  With a focus on high security standards and regulatory compliance, we ensure smooth transaction processing. 
-  Our system comes equipped with chargeback prevention and fraud protection features to create a secure payment environment.`,
-  "airline-booking": `We offer specialized payment processing solutions for airline ticket reservation systems. 
-  By providing real-time booking confirmation, multi-currency support, and secure payment processing, 
-  we help streamline operations for airlines and travel agencies.`,
-  // ... Add other industries similarly
+  "subscription-box": `サブスクリプションボックスビジネスの決済処理において、セキュリティと効率性は最も重要な要素です。
+  当社の決済ソリューションは、自動定期課金、顧客データの暗号化、不正検知システムを備え、
+  サブスクリプションビジネスの成長をサポートします。コンプライアンス準拠の決済システムにより、
+  顧客満足度の向上とビジネス拡大を実現します。`,
+  "adult": `アダルトエンターテインメント業界向けにカスタマイズされた決済ソリューションを提供します。
+  高度なセキュリティ基準と規制遵守に重点を置き、スムーズな取引処理を実現します。
+  チャージバック防止と不正防止機能を備えたシステムで、安全な決済環境を構築します。`,
+  "airline-booking": `航空券予約システム専用の決済処理ソリューションを提供します。
+  リアルタイム予約確認、多通貨対応、安全な決済処理により、
+  航空会社と旅行代理店の業務を効率化します。`,
+  // ... その他の業界も同様に追加可能
 };
 
 const IndustryDetail = () => {
   const { industryName } = useParams();
   
-  // Add useEffect to scroll to top when component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [industryName]); // Re-run when industryName changes
+  }, [industryName]);
   
   const industry = industries.find(
     (ind) => ind.name.toLowerCase().replace(/\s+/g, '-') === industryName
@@ -40,11 +39,11 @@ const IndustryDetail = () => {
         <Navbar />
         <div className="container mx-auto px-4 pt-32">
           <div className="text-center">
-            <h1 className="text-3xl font-bold mb-4">Industry Not Found</h1>
+            <h1 className="text-3xl font-bold mb-4">業界が見つかりません</h1>
             <Link to="/">
               <Button>
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Home
+                ホームに戻る
               </Button>
             </Link>
           </div>
@@ -53,9 +52,9 @@ const IndustryDetail = () => {
     );
   }
 
-  const seoContent = industrySeoContent[industryName || ''] || `We provide payment solutions tailored for the ${industry.name} industry.
-    With advanced security measures and efficient transaction processing systems, we support your business growth.
-    Our services are backed by 24/7 support and extensive industry experience.`;
+  const seoContent = industrySeoContent[industryName || ''] || `${industry.name}業界向けにカスタマイズされた決済ソリューションを提供します。
+    高度なセキュリティ対策と効率的な取引処理システムで、ビジネスの成長をサポートします。
+    24時間365日のサポートと豊富な業界経験に裏打ちされたサービスを提供します。`;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-secondary/50 to-white">
@@ -70,7 +69,7 @@ const IndustryDetail = () => {
         <div className="container mx-auto px-4 pt-32 pb-20">
           <Link to="/" className="inline-flex items-center text-primary hover:text-primary/80 mb-8 transition-colors">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Industries
+            業界一覧に戻る
           </Link>
           
           <div className="grid lg:grid-cols-2 gap-12 items-start">
@@ -85,10 +84,9 @@ const IndustryDetail = () => {
                 </div>
               </div>
 
-              {/* Add SEO content */}
               <Card className="border-none shadow-lg bg-white/80 backdrop-blur-sm">
                 <CardContent className="p-8">
-                  <h2 className="text-2xl font-semibold mb-6 text-gray-900">Payment Solutions for {industry.name}</h2>
+                  <h2 className="text-2xl font-semibold mb-6 text-gray-900">{industry.name}向け決済ソリューション</h2>
                   <div className="prose prose-gray max-w-none">
                     <p className="text-gray-700 leading-relaxed whitespace-pre-line">
                       {seoContent}
@@ -99,15 +97,15 @@ const IndustryDetail = () => {
               
               <Card className="border-none shadow-lg bg-white/80 backdrop-blur-sm">
                 <CardContent className="p-8">
-                  <h2 className="text-2xl font-semibold mb-6 text-gray-900">Why Choose Our {industry.name} Payment Processing?</h2>
+                  <h2 className="text-2xl font-semibold mb-6 text-gray-900">なぜ当社の{industry.name}決済処理を選ぶのか</h2>
                   <div className="grid gap-4">
                     {[
-                      `Specialized high-risk merchant accounts tailored for ${industry.name.toLowerCase()} businesses`,
-                      "Competitive rates and flexible payment terms",
-                      "Advanced fraud protection and risk management",
-                      "24/7 customer support and dedicated account manager",
-                      "Fast approval process and quick account setup",
-                      "Multiple currency support and global payment processing"
+                      `${industry.name}ビジネス向けに特化したハイリスク加盟店口座`,
+                      "競争力のある料率と柔軟な支払い条件",
+                      "高度な不正防止とリスク管理",
+                      "24時間365日のカスタマーサポートと専任アカウントマネージャー",
+                      "迅速な審査プロセスと素早いアカウント設定",
+                      "複数通貨対応とグローバル決済処理"
                     ].map((benefit, index) => (
                       <div key={index} className="flex items-start space-x-3">
                         <CheckCircle2 className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
@@ -120,15 +118,15 @@ const IndustryDetail = () => {
 
               <Card className="border-none shadow-lg bg-white/80 backdrop-blur-sm">
                 <CardContent className="p-8">
-                  <h2 className="text-2xl font-semibold mb-6 text-gray-900">Our {industry.name} Solutions Include:</h2>
+                  <h2 className="text-2xl font-semibold mb-6 text-gray-900">当社の{industry.name}ソリューションの特徴</h2>
                   <div className="grid gap-4">
                     {[
-                      "Secure payment gateway integration",
-                      "Chargeback prevention and management",
-                      "Multi-currency processing capabilities",
-                      "Recurring billing and subscription management",
-                      "PCI DSS compliance support",
-                      "Real-time transaction monitoring"
+                      "安全な決済ゲートウェイ統合",
+                      "チャージバック防止と管理",
+                      "マルチカレンシー処理機能",
+                      "定期課金とサブスクリプション管理",
+                      "PCI DSS準拠サポート",
+                      "リアルタイム取引監視"
                     ].map((solution, index) => (
                       <div key={index} className="flex items-start space-x-3">
                         <CheckCircle2 className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
@@ -143,7 +141,7 @@ const IndustryDetail = () => {
             <div className="lg:sticky lg:top-32">
               <Card className="border-none shadow-xl bg-white/90 backdrop-blur-sm">
                 <CardContent className="p-8">
-                  <h2 className="text-2xl font-semibold mb-6 text-gray-900">Get Started with {industry.name} Processing</h2>
+                  <h2 className="text-2xl font-semibold mb-6 text-gray-900">{industry.name}の決済処理を始める</h2>
                   <ContactForm />
                 </CardContent>
               </Card>
